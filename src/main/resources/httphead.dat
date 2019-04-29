@@ -1,0 +1,19 @@
+HTTP/1.1 200 OK
+Date:16 Apr 2019 23:23:50 GMT
+Server:mhttpd
+
+
+
+<!doctype html>
+<html>
+<head>
+</head>
+<body>
+	<h1>This is my tiny server</h1>
+	<form>
+		<input type="text">
+	</form>
+</body>
+
+</html>
+
