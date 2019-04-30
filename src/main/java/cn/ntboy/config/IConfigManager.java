@@ -1,6 +1,5 @@
 package cn.ntboy.config;
 
-import java.util.Map;
 import java.util.Set;
 
 public interface IConfigManager{
@@ -9,6 +8,7 @@ public interface IConfigManager{
     void setConfigItem(String key, String value);
 
     void reloadConfig(String[] args);
+
     void loadConfig(String[] args);
 
     Set<String> getKeySet();

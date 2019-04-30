@@ -4,7 +4,7 @@ import cn.ntboy.config.IConfigManager;
 
 import java.util.Set;
 
-class ConfigFileConfigManager implements IConfigManager {
+class ConfigFileConfigManager implements IConfigManager{
 
     private ConfigFileConfigManager() {
     }
@@ -36,7 +36,7 @@ class ConfigFileConfigManager implements IConfigManager {
 
     private static final ConfigFileConfigManager instance = new ConfigFileConfigManager();
 
-    public static IConfigManager getInstance(){
+    public static IConfigManager getInstance() {
         return instance;
     }
 }

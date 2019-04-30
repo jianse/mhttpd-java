@@ -6,17 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-class BuiltInConfigManager implements IConfigManager {
+class BuiltInConfigManager implements IConfigManager{
 
+    private static final BuiltInConfigManager instance = new BuiltInConfigManager();
 
-
-    private static final BuiltInConfigManager instance=new BuiltInConfigManager();
-
-    private Map<String,String> config = new HashMap<String, String>();
+    private Map<String, String> config = new HashMap<String, String>();
 
     private BuiltInConfigManager() {
-        config.put("port","18080");
-        config.put("max_client","8");
+        config.put("port", "18080");
+        config.put("max_client", "8");
     }
 
     public Set<String> getKeySet() {
@@ -27,9 +25,8 @@ class BuiltInConfigManager implements IConfigManager {
         return config.get(key);
     }
 
-
     public void setConfigItem(String key, String value) {
-        config.put(key,value);
+        config.put(key, value);
     }
 
     @Override
@@ -41,7 +38,7 @@ class BuiltInConfigManager implements IConfigManager {
 
     }
 
-    public static IConfigManager getInstance(){
+    public static IConfigManager getInstance() {
         return instance;
     }
 }
