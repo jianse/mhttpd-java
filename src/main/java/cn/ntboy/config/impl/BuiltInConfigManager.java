@@ -14,7 +14,7 @@ class BuiltInConfigManager implements IConfigManager{
 
     private BuiltInConfigManager() {
         config.put("port", "18080");
-        config.put("max_client", "8");
+        config.put("maxUser", "8");
     }
 
     public Set<String> getKeySet() {
