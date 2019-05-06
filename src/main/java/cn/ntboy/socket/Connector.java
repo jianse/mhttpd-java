@@ -6,6 +6,7 @@ import cn.ntboy.config.impl.ConfigManager;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,11 +19,17 @@ public class Connector{
         int port = Integer.parseInt(portStr);
         ServerSocket httpServerSocket = new ServerSocket(port);
 
-        ExecutorService threadPool = Executors.newFixedThreadPool(100);
+        System.out.println(httpServerSocket.getInetAddress().getLocalHost().getHostAddress()+":"+httpServerSocket.getLocalPort());
 
-        Socket acceptSocket = httpServerSocket.accept();
-        SocketWorker worker = new SocketWorker(acceptSocket);
-        threadPool.submit(worker);
+        String maxUser = configManager.getConfigItem("maxUser");
+        int iMaxUser=Integer.parseInt(maxUser);
+        ExecutorService threadPool = Executors.newFixedThreadPool(iMaxUser);
+        while (true){
+            Socket acceptSocket = httpServerSocket.accept();
+            SocketWorker worker = new SocketWorker(acceptSocket);
+            threadPool.submit(worker);
+        }
+
 
     }
 }
