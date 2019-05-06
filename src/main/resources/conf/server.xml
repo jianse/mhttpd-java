@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<server>
+    <Connector port="18080" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="8443" />
+
+
+</server>
