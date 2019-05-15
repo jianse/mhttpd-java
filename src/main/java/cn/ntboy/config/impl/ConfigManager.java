@@ -25,6 +25,10 @@ public class ConfigManager implements IConfigManager{
 
     }
 
+    public static IConfigManager getInstance() {
+        return instance;
+    }
+
     public String getConfigItem(String key) {
         return config.get(key);
     }
@@ -52,9 +56,5 @@ public class ConfigManager implements IConfigManager{
         }
 
         //copy
-    }
-
-    public static IConfigManager getInstance() {
-        return instance;
     }
 }

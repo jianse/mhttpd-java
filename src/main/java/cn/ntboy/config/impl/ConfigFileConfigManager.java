@@ -6,7 +6,13 @@ import java.util.Set;
 
 class ConfigFileConfigManager implements IConfigManager{
 
+    private static final ConfigFileConfigManager instance = new ConfigFileConfigManager();
+
     private ConfigFileConfigManager() {
+    }
+
+    public static IConfigManager getInstance() {
+        return instance;
     }
 
     @Override
@@ -32,11 +38,5 @@ class ConfigFileConfigManager implements IConfigManager{
     @Override
     public Set<String> getKeySet() {
         return null;
-    }
-
-    private static final ConfigFileConfigManager instance = new ConfigFileConfigManager();
-
-    public static IConfigManager getInstance() {
-        return instance;
     }
 }

@@ -17,6 +17,10 @@ class BuiltInConfigManager implements IConfigManager{
         config.put("maxUser", "8");
     }
 
+    public static IConfigManager getInstance() {
+        return instance;
+    }
+
     public Set<String> getKeySet() {
         return config.keySet();
     }
@@ -36,9 +40,5 @@ class BuiltInConfigManager implements IConfigManager{
 
     public void loadConfig(String[] args) {
 
-    }
-
-    public static IConfigManager getInstance() {
-        return instance;
     }
 }

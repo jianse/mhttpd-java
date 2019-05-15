@@ -6,7 +6,13 @@ import java.util.Set;
 
 class CommandLineConfigManager implements IConfigManager{
 
+    private static final CommandLineConfigManager instance = new CommandLineConfigManager();
+
     private CommandLineConfigManager() {
+    }
+
+    public static IConfigManager getInstance() {
+        return instance;
     }
 
     @Override
@@ -32,11 +38,5 @@ class CommandLineConfigManager implements IConfigManager{
     @Override
     public Set<String> getKeySet() {
         return null;
-    }
-
-    private static final CommandLineConfigManager instance = new CommandLineConfigManager();
-
-    public static IConfigManager getInstance() {
-        return instance;
     }
 }
