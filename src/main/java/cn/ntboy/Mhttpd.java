@@ -4,6 +4,7 @@ import cn.ntboy.mhttpd.Server;
 import cn.ntboy.mhttpd.startup.Bootstrap;
 import cn.ntboy.mhttpd.startup.ConnectorCreateRule;
 import cn.ntboy.mhttpd.startup.MhttpdBaseConfigurationSource;
+import cn.ntboy.mhttpd.util.CommandLineParser;
 import cn.ntboy.mhttpd.util.file.ConfigFileLoader;
 import cn.ntboy.mhttpd.util.file.ConfigurationSource;
 import org.apache.commons.digester3.Digester;
@@ -11,22 +12,41 @@ import org.xml.sax.InputSource;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Arrays;
 
 public class Mhttpd{
     public static final String SERVER_XML = "conf/server.xml";
+    private static boolean start = true;
     private boolean loaded = false;
     private String configFile = SERVER_XML;
     private Server server;
 
     public static void main(String[] args) throws Exception {
-        Mhttpd mhttpd = new Mhttpd();
 
-//        mhttpd.init();
-        mhttpd.load();
-        Server server = mhttpd.getServer();
+        System.out.println(Arrays.toString(args));
+        CommandLineParser parser = getCommandLineParser();
+        parser.parse(args);
 
-        server.start();
-        server.await();
+        if (start) {
+            Mhttpd mhttpd = new Mhttpd();
+            mhttpd.load();
+            Server server = mhttpd.getServer();
+
+            server.start();
+            server.await();
+        }
+    }
+
+    private static CommandLineParser getCommandLineParser() {
+        CommandLineParser parser = new CommandLineParser();
+        parser.addOption("help", "h", CommandLineParser.ArgState.NO_ARG, (op, i, arg) -> {
+            Mhttpd.start = false;
+            System.out.println("this is a help text");
+        });
+        parser.addOption("usedefault", "d", CommandLineParser.ArgState.NO_ARG, (op, i, arg) -> {
+
+        });
+        return parser;
     }
 
     private Server getServer() {
@@ -49,7 +69,7 @@ public class Mhttpd{
         ConfigFileLoader.setSource(
                 new MhttpdBaseConfigurationSource(
                         Bootstrap.getMhttpdBaseFile(), getConfigFile()));
-        File file = configFile();
+        //File file = configFile();
 
         Digester digester = createStartDigester();
         try (ConfigurationSource.Resource resource = ConfigFileLoader.getSource().getServerXml()) {
