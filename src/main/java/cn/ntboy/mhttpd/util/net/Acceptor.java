@@ -4,30 +4,48 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Acceptor implements Runnable{
+public class Acceptor<U> implements Runnable{
 
-    Connector connector = null;
 
-    public Connector getConnector() {
-        return connector;
+    private final AbstractEndpoint<?,U> endpoint;
+
+    protected volatile AcceptorState state = AcceptorState.NEW;
+
+    public Acceptor(AbstractEndpoint<?, U> endpoint) {
+        this.endpoint = endpoint;
     }
 
-    public void setConnector(Connector connector) {
-        this.connector = connector;
-    }
 
     @Override
     public void run() {
-        if (connector != null) {
-            while (connector.isRunning()) {
-                ServerSocket serverSocket = connector.getServerSocket();
-                try {
-                    Socket socket = serverSocket.accept();
-                    connector.handleSocket(socket);
-                } catch (IOException e) {
-                    e.printStackTrace();
+        while (endpoint.isRunning()) {
+            state = AcceptorState.RUNNING;
+            try {
+                endpoint.countUpOrAwaitConnection();
+
+                U socket=null;
+                try{
+                    socket=endpoint.serverSocketAccept();
+                }catch (Exception ioe){
+                    endpoint.countDownConnection();
+                    throw ioe;
                 }
+                if(endpoint.isRunning()){
+                    if(!endpoint.setSocketOptions(socket)){
+                        endpoint.closeSocket(socket);
+                    }
+                }else {
+                    endpoint.destroySocket(socket);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
+
+        state = AcceptorState.ENDED;
+    }
+
+    public enum AcceptorState {
+        NEW, RUNNING, PAUSED, ENDED
     }
 }

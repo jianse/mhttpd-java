@@ -5,6 +5,9 @@ import cn.ntboy.mhttpd.LifecycleException;
 import cn.ntboy.mhttpd.LifecycleState;
 import cn.ntboy.mhttpd.Service;
 import cn.ntboy.mhttpd.util.LifecycleBase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +19,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Connector extends LifecycleBase{
+
+    private static Logger logger = LogManager.getLogger(Connector.class);
+
     protected int connectionTimeout = 20000;
 
     /**
@@ -141,6 +147,7 @@ public class Connector extends LifecycleBase{
 
     @Override
     protected void initInternal() throws LifecycleException {
+        logger.debug("initializing connector...");
         try {
             ServerSocket serverSocket = new ServerSocket();
             SocketAddress addr = new InetSocketAddress(InetAddress.getByName("localhost"), port);
@@ -156,6 +163,7 @@ public class Connector extends LifecycleBase{
         } else {
             acceptor.setConnector(this);
         }
+        logger.info("connector is on , "+"http://localhost:"+getPort());
     }
 
     @Override

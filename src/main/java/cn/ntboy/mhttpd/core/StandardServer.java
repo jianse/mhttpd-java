@@ -5,6 +5,8 @@ import cn.ntboy.mhttpd.LifecycleState;
 import cn.ntboy.mhttpd.Server;
 import cn.ntboy.mhttpd.Service;
 import cn.ntboy.mhttpd.util.LifecycleBase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +17,8 @@ import java.net.SocketTimeoutException;
 import java.security.AccessControlException;
 
 public class StandardServer extends LifecycleBase implements Server{
+
+    private static Logger logger = LogManager.getLogger(StandardServer.class);
 
     private final Object servicesLock = new Object();
     private int port = 8005;
@@ -191,6 +195,7 @@ public class StandardServer extends LifecycleBase implements Server{
     @Override
     protected void startInternal() throws LifecycleException {
         setState(LifecycleState.STARTING);
+        logger.debug("starting server...");
         synchronized (servicesLock) {
             for (Service service : services) {
                 service.start();

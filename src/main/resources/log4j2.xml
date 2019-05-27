@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Configuration status="WARN">
+    <Properties>
+        <!-- 配置日志文件输出目录 ${sys:user.home} -->
+        <property name="LOG_HOME">log</property>
+        <property name="ERROR_LOG_FILE_NAME">log/error</property>
+        <property name="WARN_LOG_FILE_NAME">log/warn</property>
+        <property name="PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t-%L] %-5level %logger{36} - %msg%n</property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- 控制台只输出level及以上级别的信息(onMatch),其他的直接拒绝(onMismatch) -->
+            <ThresholdFilter level="trace" onMatch="ACCEPT"
+                             onMismatch="DENY" />
+            <!-- 输出日志的格式 -->
+            <!--
+            %d{yyyy-MM-dd HH:mm:ss, SSS} : 日志生产时间
+            %p : 日志输出格式
+            %c : logger的名称
+            %m : 日志内容，即 logger.info("message")
+            %n : 换行符
+            %C : Java类名
+            %L : 日志输出所在行数
+            %M : 日志输出所在方法名
+            hostName : 本地机器名
+            hostAddress : 本地ip地址 -->
+            <PatternLayout
+                    pattern="${PATTERN}" />
+        </Console>
+    </Appenders>
+    <Loggers>
+        <root level="all">
+            <appender-ref ref="Console"/>
+        </root>
+    </Loggers>
+</Configuration>

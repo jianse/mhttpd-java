@@ -2,6 +2,8 @@ package cn.ntboy.mhttpd.startup;
 
 import cn.ntboy.Mhttpd;
 import cn.ntboy.mhttpd.util.file.ConfigurationSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +15,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public class MhttpdBaseConfigurationSource implements ConfigurationSource{
+
+
+    private static Logger log = LogManager.getLogger(MhttpdBaseConfigurationSource.class);
 
     private final String serverXmlPath;
     private final File mhttpdBaseFile;
