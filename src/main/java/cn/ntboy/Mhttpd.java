@@ -7,6 +7,7 @@ import cn.ntboy.mhttpd.startup.MhttpdBaseConfigurationSource;
 import cn.ntboy.mhttpd.util.CommandLineParser;
 import cn.ntboy.mhttpd.util.file.ConfigFileLoader;
 import cn.ntboy.mhttpd.util.file.ConfigurationSource;
+import cn.ntboy.mhttpd.util.res.StringManager;
 import org.apache.commons.digester3.Digester;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,7 +19,8 @@ import java.util.Arrays;
 
 public class Mhttpd{
 
-    private static Logger  log = LogManager.getLogger(Mhttpd.class);
+    private static final Logger  log = LogManager.getLogger(Mhttpd.class);
+    private static final StringManager sm =StringManager.getManager(Mhttpd.class);
 
     public static final String SERVER_XML = "conf/server.xml";
     private static boolean start = true;
@@ -29,14 +31,15 @@ public class Mhttpd{
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println(Arrays.toString(args));
+        String str =sm.getString("mhttpd.CommandLineArgs",Arrays.toString(args));
+        System.out.println(str);
+        log.debug(str);
         CommandLineParser parser = getCommandLineParser();
         parser.parse(args);
         if (start) {
             Mhttpd mhttpd = new Mhttpd();
             mhttpd.load();
             Server server = mhttpd.getServer();
-
             server.start();
             server.await();
         }
