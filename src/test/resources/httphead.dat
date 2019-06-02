@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+Date: 16 Apr 2019 23:23:50 GMT
+Server:mhttpd
+Content-Type: text/html; charset=UTF-8
+Connection: keep-alive
+Content-Length:231
+
+<!doctype html>
+<html>
+<head>
+</head>
+<body>
+	<h1>This is my tiny server</h1>
+	<form method="post">
+		<label>username:</label>
+		<input type="text" name="username">
+		<input type="submit">
+	</form>
+</body>
+
+</html>
+

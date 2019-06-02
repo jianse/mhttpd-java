@@ -17,4 +17,13 @@ public interface Service extends Lifecycle{
 
     public void removeConnector(Connector connector);
 
+
+
+    public void addExecutor(Executor ex);
+
+    public Executor[] findExecutors();
+
+    public Executor getExecutor(String name);
+
+    public void removeExecutor(Executor ex);
 }

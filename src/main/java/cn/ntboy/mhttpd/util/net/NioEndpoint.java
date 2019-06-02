@@ -1,5 +1,7 @@
 package cn.ntboy.mhttpd.util.net;
 
+import cn.ntboy.mhttpd.LifecycleException;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
@@ -24,7 +26,7 @@ public class NioEndpoint extends AbstractEndpoint<NioChannel, SocketChannel>{
     public int getAcceptCount() { return acceptCount; }
 
     @Override
-    void bind() throws Exception{
+    protected void bind() throws Exception{
         initServerSocket();
 
         if(acceptorThreadCount==0){
@@ -63,6 +65,26 @@ public class NioEndpoint extends AbstractEndpoint<NioChannel, SocketChannel>{
 
     @Override
     public void closeSocket(SocketChannel socket) {
+
+    }
+
+    @Override
+    protected void initInternal() throws LifecycleException {
+
+    }
+
+    @Override
+    protected void startInternal() throws LifecycleException {
+
+    }
+
+    @Override
+    protected void stopInternal() throws LifecycleException {
+
+    }
+
+    @Override
+    protected void destroyInternal() throws LifecycleException {
 
     }
 }

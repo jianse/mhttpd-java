@@ -1,5 +1,6 @@
 package cn.ntboy.mhttpd.util.net;
 
+import cn.ntboy.mhttpd.util.LifecycleBase;
 import cn.ntboy.mhttpd.util.threads.LimitLatch;
 import lombok.Getter;
 
@@ -11,15 +12,15 @@ import java.util.List;
  * @param <U> The type of the underlying socket used by this endpoint. May be
  *            the same as S.
  */
-public abstract class AbstractEndpoint<S,U>{
+public abstract class AbstractEndpoint<S,U> extends LifecycleBase {
     private volatile LimitLatch connectionLimitLatch =null;
     @Getter
     private int maxConnections=10000;
-    private volatile boolean running =false;
+    protected volatile boolean running =false;
 
     protected List<Acceptor<U>> acceptors;
 
-    abstract void bind() throws Exception;
+    protected abstract void bind() throws Exception;
 
     public void countUpOrAwaitConnection() throws InterruptedException {
         //unlimited

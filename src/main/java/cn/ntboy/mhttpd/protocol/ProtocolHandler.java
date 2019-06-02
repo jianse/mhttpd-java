@@ -1,22 +1,15 @@
 package cn.ntboy.mhttpd.protocol;
 
+import cn.ntboy.mhttpd.Lifecycle;
 import cn.ntboy.mhttpd.util.net.SSLHostConfig;
 
 import java.util.concurrent.Executor;
 
-public interface ProtocolHandler{
-
-    public void init()throws Exception;
-
-    public void start();
+public interface ProtocolHandler extends Lifecycle {
 
     public void pause();
 
     public void resume();
-
-    public void stop();
-
-    public void destroy();
 
     public void closeServerSocketGraceful();
 

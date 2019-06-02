@@ -1,54 +1,63 @@
 package cn.ntboy.mhttpd.util.net;
 
-import cn.ntboy.mhttpd.protocol.ProtocolHandler;
+import cn.ntboy.mhttpd.Executor;
 import cn.ntboy.mhttpd.LifecycleException;
 import cn.ntboy.mhttpd.LifecycleState;
 import cn.ntboy.mhttpd.Service;
+import cn.ntboy.mhttpd.protocol.ProtocolHandler;
 import cn.ntboy.mhttpd.util.LifecycleBase;
+import cn.ntboy.mhttpd.util.res.StringManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Connector extends LifecycleBase{
+public class Connector extends LifecycleBase {
 
     private static Logger logger = LogManager.getLogger(Connector.class);
-
     protected int connectionTimeout = 20000;
-
     /**
      * The redirect port for non-SSL to SSL redirects.
      */
     protected int redirectPort = 443;
-
     /**
      * The secure connection flag that will be set on all requests received
      * through this connector.
      */
     protected boolean secure = false;
-
-    private Charset uriCharset = StandardCharsets.UTF_8;
-
     protected String protocolHandlerClassName = null;
     protected ProtocolHandler protocolHandler = null;
     protected boolean running = false;
+    StringManager sm = StringManager.getManager(Connector.class);
+    private Charset uriCharset = StandardCharsets.UTF_8;
     private int port = 18080;
     private ServerSocket serverSocket = null;
     private Acceptor acceptor = null;
     private Service service = null;
     private Thread accepterTread = null;
+
+    public static final String INTERNAL_EXECUTOR_NAME = "Internal";
+
+    public String getExecutorName(){
+        Object obj = protocolHandler.getExecutor();
+        if(obj instanceof Executor){
+            return ((Executor) obj).getName();
+        }
+        return INTERNAL_EXECUTOR_NAME;
+    }
+
     public Connector(String protocol) throws IOException {
 
         if ("HTTP/1.1".equals(protocol)) {
-            protocolHandlerClassName = "cn.ntboy.mhttpd.protocol.http.Http11Protocol";
+            protocolHandlerClassName = "cn.ntboy.ProtocolHandler";
         } else {
             protocolHandlerClassName = protocol;
         }
@@ -63,23 +72,6 @@ public class Connector extends LifecycleBase{
         } finally {
             this.protocolHandler = p;
         }
-
-//        IConfigManager configManager = ConfigManager.getInstance();
-//        String portStr = configManager.getConfigItem("port");
-//        int port = Integer.parseInt(portStr);
-//        ServerSocket httpServerSocket = new ServerSocket(port);
-//
-//        System.out.println(httpServerSocket.getInetAddress().getLocalHost().getHostAddress() + ":" + httpServerSocket.getLocalPort());
-//
-//        String maxUser = configManager.getConfigItem("maxUser");
-//        int iMaxUser = Integer.parseInt(maxUser);
-//        ExecutorService threadPool = Executors.newFixedThreadPool(iMaxUser);
-//        while (true) {
-//            Socket acceptSocket = httpServerSocket.accept();
-//            SocketWorker worker = new SocketWorker(acceptSocket);
-//            threadPool.submit(worker);
-//        }
-
     }
 
     public int getConnectionTimeout() {
@@ -121,7 +113,7 @@ public class Connector extends LifecycleBase{
     public void handleSocket(Socket socket) throws IOException {
         //todo: invoke the method in protocolHandler to parse request and return response
         ExecutorService threadPool = Executors.newFixedThreadPool(100);
-        threadPool.submit(new Runnable(){
+        threadPool.submit(new Runnable() {
             @Override
             public void run() {
 
@@ -148,34 +140,44 @@ public class Connector extends LifecycleBase{
     @Override
     protected void initInternal() throws LifecycleException {
         logger.debug("initializing connector...");
+
+//        if(executor==null)
+
         try {
-            ServerSocket serverSocket = new ServerSocket();
-            SocketAddress addr = new InetSocketAddress(InetAddress.getByName("localhost"), port);
-            serverSocket.bind(addr);
-            this.serverSocket = serverSocket;
-        } catch (IOException e) {
-            e.printStackTrace();
+            protocolHandler.init();
+        } catch (Exception e) {
+            throw new LifecycleException(sm.getString("connector.protocolHandlerInitializationFailed"), e);
         }
 
-        if (acceptor == null) {
-            acceptor = new Acceptor();
-            acceptor.setConnector(this);
-        } else {
-            acceptor.setConnector(this);
-        }
-        logger.info("connector is on , "+"http://localhost:"+getPort());
     }
 
     @Override
     protected void startInternal() throws LifecycleException {
+        //setState(LifecycleState.STARTING);
+        if (getPort() < 0) {
+            throw new LifecycleException(sm.getString("connector.invalidPort", getPort()));
+        }
         setState(LifecycleState.STARTING);
-        this.running = true;
-        accepterTread = new Thread(acceptor);
-        accepterTread.start();
+        try {
+            protocolHandler.start();
+            logger.debug("started protocol handler:"+protocolHandler.getClass().getName());
+        } catch (Exception e) {
+            throw new LifecycleException(sm.getString("connector.protocolHandlerStartFailed"), e);
+        }
+//        setState(LifecycleState.STARTING);
+//        this.running = true;
+//        accepterTread = new Thread(acceptor);
+//        accepterTread.start();
     }
 
     @Override
     protected void stopInternal() throws LifecycleException {
+        setState(LifecycleState.STOPPING);
+        try {
+            protocolHandler.stop();
+        } catch (Exception e) {
+            throw new LifecycleException(sm.getString("connector.protocolHandlerStopFailed"), e);
+        }
 
     }
 
@@ -185,6 +187,11 @@ public class Connector extends LifecycleBase{
 
     @Override
     protected void destroyInternal() throws LifecycleException {
+        try {
+            protocolHandler.destroy();
+        }catch (Exception e){
+            throw new LifecycleException(sm.getString("connector.protocolHandlerDestroyFailed"),e);
+        }
 
     }
 
