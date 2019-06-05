@@ -24,7 +24,7 @@
          APR (HTTP/AJP) Connector: /docs/apr.html
          Define a non-SSL/TLS HTTP/1.1 Connector on port 8080
     -->
-    <Connector port="80" protocol="HTTP/1.1"
+    <Connector port="8080" protocol="HTTP/1.1"
                connectionTimeout="20000"
                redirectPort="443" />
     <!-- A "Connector" using the shared thread pool-->
@@ -79,10 +79,14 @@
     <!-- You should set jvmRoute to support load-balancing via AJP ie :
     <Engine name="Catalina" defaultHost="localhost" jvmRoute="jvm1">
     -->
-    <Engine name="Catalina" defaultHost="localhost">
-      <Host name="localhost"  appBase="webapps" wwwRoot="www" cgiRoot="cgi-bin">
-	<Context path="/downloads" docBase="E:\实验报告" reloaded="true" />
-      </Host>
-    </Engine>
+    <Contexts>
+      <Context path="/cgi-bin" docBase="www/cgi-bin" type="cgi"/>
+      <Context path="/" docBase="www/html" type="static"/>
+    </Contexts>
+<!--    <Engine name="Catalina" defaultHost="localhost">-->
+<!--      <Host name="localhost"  appBase="webapps" wwwRoot="www" cgiRoot="cgi-bin">-->
+<!--        <Context path="/downloads" docBase="E:\实验报告" reloaded="true" />-->
+<!--      </Host>-->
+<!--    </Engine>-->
   </Service>
 </Server>

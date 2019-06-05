@@ -2,7 +2,8 @@ package cn.ntboy.mhttpd.core;
 
 import cn.ntboy.mhttpd.*;
 import cn.ntboy.mhttpd.util.LifecycleBase;
-import cn.ntboy.mhttpd.util.net.Connector;
+import cn.ntboy.mhttpd.connector.Connector;
+import cn.ntboy.mhttpd.util.res.StringManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,17 +11,20 @@ import java.util.ArrayList;
 
 public class StandardService extends LifecycleBase implements Service{
 
-    Logger log = LogManager.getLogger(StandardService.class);
+    private static final Logger log = LogManager.getLogger(StandardService.class);
+    private static final StringManager sm=StringManager.getManager(StandardService.class);
     private final Object connectorsLock = new Object();
     private String name = null;
     private Server server = null;
     private Connector[] connectors = new Connector[0];
 
+    private Engine engine = null;
+
     /**
      * The list of executors held by the service.
      */
     protected final ArrayList<Executor> executors = new ArrayList<>();
-    private Engine engine =null;
+//    private Engine engine =null;
 
     @Override
     public String getName() {
@@ -115,7 +119,40 @@ public class StandardService extends LifecycleBase implements Service{
     }
 
     @Override
+    public void setContainer(Engine engine) {
+        Engine oldEngine= this.engine;
+        if(oldEngine!=null){
+            oldEngine.setService(null);
+        }
+        this.engine =engine;
+        if(this.engine!=null){
+            this.engine.setService(this);
+        }
+        if(getState().isAvailable()){
+            try{
+                engine.start();
+            }catch (LifecycleException e){
+                //todo:do some log
+            }
+        }
+
+    }
+
+    private Contexts contexts = null;
+
+    @Override
+    public void setContexts(Contexts contexts) {
+        this.contexts = contexts;
+    }
+
+    @Override
+    public Contexts getContexts() {
+        return contexts;
+    }
+
+    @Override
     protected void initInternal() throws LifecycleException {
+        log.debug(sm.getString("standardService.init"));
         if (engine!=null) {
             engine.init();
         }

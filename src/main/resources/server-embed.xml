@@ -96,8 +96,7 @@
     <Engine name="Catalina" defaultHost="localhost" jvmRoute="jvm1">
     -->
     <Engine name="Catalina" defaultHost="localhost">
-      <Host name="localhost"  appBase="webapps" wwwBase="webapps/www" cgiRoot="webapps/cgi-root">
-			<Context path="/downloads" docBase="E:\实验报告" reloaded="true" />
+      <Host name="localhost"  appBase="www" htmlRoot="www/html" cgiRoot="www/cgi-bin">
       </Host>
     </Engine>
   </Service>

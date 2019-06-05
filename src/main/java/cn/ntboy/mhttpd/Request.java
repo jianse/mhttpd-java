@@ -79,4 +79,8 @@ public interface Request {
     String getUserAgent();
 
     String getReferer();
+
+    void setContext(Context context);
+
+    Context getContext();
 }

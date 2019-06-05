@@ -1,23 +1,22 @@
 package cn.ntboy;
 
-import cn.ntboy.mhttpd.LifecycleException;
-import cn.ntboy.mhttpd.LifecycleState;
-import cn.ntboy.mhttpd.Request;
-import cn.ntboy.mhttpd.Response;
+import cn.ntboy.mhttpd.*;
+import cn.ntboy.mhttpd.connector.Connector;
 import cn.ntboy.mhttpd.core.HttpRequest;
 import cn.ntboy.mhttpd.core.HttpResponse;
+import cn.ntboy.mhttpd.protocol.ProtocolHandler;
 import cn.ntboy.mhttpd.protocol.UpgradeProtocol;
 import cn.ntboy.mhttpd.util.LifecycleBase;
-import cn.ntboy.mhttpd.util.net.AbstractEndpoint;
 import cn.ntboy.mhttpd.util.net.SSLHostConfig;
 import cn.ntboy.mhttpd.util.net.TestEndpoint;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -27,52 +26,37 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executor;
 
-public class ProtocolHandler extends LifecycleBase implements Runnable, cn.ntboy.mhttpd.protocol.ProtocolHandler {
+public class RequestParser extends LifecycleBase implements Runnable {
 
-    private byte[] nl={0x0d,0x0a};
-
-    @Getter @Setter
+    private static final Logger logger = LogManager.getLogger(RequestParser.class);
+    private byte[] nl = {0x0d, 0x0a};
+    @Getter
+    @Setter
     private SocketChannel socketChannel;
-
-    protected TestEndpoint endpoint = new TestEndpoint();
-    private Executor executor;
-
-    public ProtocolHandler() {
-        this.request = new HttpRequest();
-        this.response = new HttpResponse();
-    }
-
-    public ProtocolHandler(Request request, Response response) {
-        this.request = request;
-        this.response = response;
-    }
-
-    @Getter @Setter
+    @Getter
+    @Setter
     private Charset defaultCharset = StandardCharsets.UTF_8;
+    @Getter
+    @Setter
+    private Request request = null;
+    @Getter
+    @Setter
+    private Response response = null;
+    @Getter
+    @Setter
+    private String defaultIndex = "index.html";
+    @Getter
+    @Setter
+    private int maxHttpHeaderSize = 1024 * 8;
+    @Getter
+    @Setter
+//    private String baseDir = "D:/www";
+    private String[] protocols = {"HTTP/1.0", "HTTP/1.1", "HTTP/2.0"};
+    private String[] methods = {"GET", "POST", "PUT", "DELETE", "CONNECT", "HEAD", "TRACE", "OPTIONS"};
 
-    @Getter @Setter
-    private Request request;
-
-    @Getter @Setter
-    private Response response;
-
-    @Getter @Setter
-    private String defaultIndex="index.html";
-
-    @Getter @Setter
-    private int maxHttpHeaderSize=1024*8;
-
-    @Getter @Setter
-    private String baseDir="D:/www";
-
-
-    private String[] protocols={"HTTP/1.0","HTTP/1.1","HTTP/2.0"};
-    private String[] methods={"GET","POST","PUT","DELETE","CONNECT","HEAD","TRACE","OPTIONS"};
-
-
-    public void parseRequestLine(String requestLine){
+    public void parseRequestLine(String requestLine) {
         String[] s = requestLine.split(" ");
-        if(s.length==3){
+        if (s.length == 3) {
             parseMethod(s[0]);
             parseURL(s[1]);
             parseProtocol(s[2]);
@@ -80,20 +64,20 @@ public class ProtocolHandler extends LifecycleBase implements Runnable, cn.ntboy
     }
 
     private void parseProtocol(String protocol) {
-        if(contains(protocol,protocols)){
+        if (contains(protocol, protocols)) {
             this.request.setProtocol(protocol);
         }
     }
 
     private void parseURL(String url) {
-        if(url.contains("?")){
+        if (url.contains("?")) {
             // has param
             String[] split = url.split("\\?");
-            if(split.length!=2){
+            if (split.length != 2) {
                 //todo:a wrong url
                 throw new RuntimeException();
             }
-            url=split[0];
+            url = split[0];
             parseQueryString(split[1]);
 
         }
@@ -106,31 +90,31 @@ public class ProtocolHandler extends LifecycleBase implements Runnable, cn.ntboy
         this.request.setPath(url);
     }
 
-    private void parseQueryString(String param){
+    private void parseQueryString(String param) {
         String[] split = param.split("&");
-        for(String item:split){
+        for (String item : split) {
             String[] kv = item.split("=");
-            if(kv.length!=2){
+            if (kv.length != 2) {
                 //todo:url参数有误
                 throw new RuntimeException();
             }
-            String key= URLDecoder.decode(kv[0], defaultCharset).trim();
-            String value=URLDecoder.decode(kv[1], defaultCharset).trim();
-            this.request.setParameter(key,value);
+            String key = URLDecoder.decode(kv[0], defaultCharset).trim();
+            String value = URLDecoder.decode(kv[1], defaultCharset).trim();
+            this.request.setParameter(key, value);
         }
     }
 
-    private void parseMethod(String method){
-        if(contains(method,methods )){
+    private void parseMethod(String method) {
+        if (contains(method, methods)) {
             this.request.setMethod(method);
-        }else{
-            throw new RuntimeException("405"+"method");
+        } else {
+            throw new RuntimeException("405" + "method");
         }
     }
 
     private boolean contains(String item, String[] list) {
-        for(String method:list){
-            if (method.equals(item)){
+        for (String method : list) {
+            if (method.equals(item)) {
                 return true;
             }
         }
@@ -138,15 +122,17 @@ public class ProtocolHandler extends LifecycleBase implements Runnable, cn.ntboy
     }
 
     protected void configSocketAndProcess(SocketChannel socketChannel) {
-        this.socketChannel=socketChannel;
-        ByteBuffer buf= ByteBuffer.allocate(100);
+        this.socketChannel = socketChannel;
+        ByteBuffer buf = ByteBuffer.allocate(100);
         StringBuilder sb = new StringBuilder();
-        try{
+        try {
             int len;
             do {
                 buf.clear();
                 len = socketChannel.read(buf);
-                if(len==-1){
+//                System.out.println(new String(buf.array()));
+//                buf.rewind();
+                if (len == -1) {
                     //发送端主动关闭了连接 我们也关闭连接就行了
                     socketChannel.close();
                     return;
@@ -154,38 +140,50 @@ public class ProtocolHandler extends LifecycleBase implements Runnable, cn.ntboy
                 buf.limit(len);
                 buf.rewind();
                 CharBuffer decode = defaultCharset.decode(buf);
-                sb.append(decode,0,decode.length());
-            }while (len==buf.capacity());
-        }catch (IOException e){
+                sb.append(decode, 0, decode.length());
+            } while (len == buf.capacity());
+        } catch (IOException e) {
             e.printStackTrace();
         }
         writeLog(sb.toString());
-        int reqline=sb.indexOf("\r\n");
+        int reqline = sb.indexOf("\r\n");
 
-        this.parseRequestLine(sb.substring(0,reqline));
+        this.parseRequestLine(sb.substring(0, reqline));
         int iheaderEnd = sb.indexOf("\r\n\r\n");
 
-        this.parseRequestHeaders(sb.substring(reqline+2,iheaderEnd));
-        System.out.println(this.getRequest());
+        this.parseRequestHeaders(sb.substring(reqline + 2, iheaderEnd));
 
+        System.out.println(request);
+
+        ProtocolHandler protocolHandler = endpoint.getProtocolHandler();
+        System.out.println(protocolHandler);
+        Connector connector = protocolHandler.getConnector();
+        System.out.println(connector);
+        Service service = connector.getService();
+        System.out.println(service);
+        Contexts contexts = service.getContexts();
+        System.out.println(contexts);
+        Context context = contexts.getContext(request.getPath());
+        System.out.println(context);
+        request.setContext(endpoint.getProtocolHandler().getConnector().getService().getContexts().getContext(request.getPath()));
+        System.out.println(request);
         Servlet servlet = new Servlet();
-        try{
-            servlet.service(request,response);
-        }catch (Exception e){
+        try {
+            servlet.service(request, response);
+        } catch (Exception e) {
             response.sendError(500);
         }
-
 
         try {
             this.socketChannel.write(ByteBuffer.wrap(this.response.getResponseHeader().getBytes()));
             this.socketChannel.write(ByteBuffer.wrap(nl));
-            this.response.getHeader().forEach((k,v)->{
-                try{
-                    this.socketChannel.write(ByteBuffer.wrap(((String)k).getBytes()));
+            this.response.getHeader().forEach((k, v) -> {
+                try {
+                    this.socketChannel.write(ByteBuffer.wrap(((String) k).getBytes()));
                     this.socketChannel.write(ByteBuffer.wrap(": ".getBytes()));
-                    this.socketChannel.write(ByteBuffer.wrap(((String)v).getBytes()));
+                    this.socketChannel.write(ByteBuffer.wrap(((String) v).getBytes()));
                     this.socketChannel.write(ByteBuffer.wrap(nl));
-                }catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                     //todo log or throw
                 }
@@ -209,13 +207,13 @@ public class ProtocolHandler extends LifecycleBase implements Runnable, cn.ntboy
         String[] headerArray = headerStr.split("\r\n");
         for (String header : headerArray) {
             int index = header.indexOf(':');
-            String key=header.substring(0,index).trim();
-            String value = header.substring(index+1).trim();
-            this.request.setHeader(key,value);
+            String key = header.substring(0, index).trim();
+            String value = header.substring(index + 1).trim();
+            this.request.setHeader(key, value);
         }
     }
 
-    private void writeLog(String str)  {
+    private void writeLog(String str) {
 
         try {
             FileOutputStream fos = new FileOutputStream(new File("log/" + System.currentTimeMillis() + ".log"));
@@ -223,76 +221,58 @@ public class ProtocolHandler extends LifecycleBase implements Runnable, cn.ntboy
             logFileChannel.write(ByteBuffer.wrap(str.getBytes(defaultCharset)));
             logFileChannel.close();
             fos.close();
-        }catch (IOException ioe){
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
     }
 
     @Override
     public void run() {
-        this.configSocketAndProcess(this.socketChannel);
-    }
+        try {
+            init();
+            start();
+//            System.out.println(getState());
+            stop();
+            destroy();
+        } catch (LifecycleException e) {
+            //todo:do some log
+//            System.out.println(e);
+//            e.printStackTrace();
+        }
 
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void closeServerSocketGraceful() {
-        endpoint.closeServerSocketGraceful();
-    }
-
-
-
-    @Override
-    public Executor getExecutor() {
-        return executor;
-    }
-
-    @Override
-    public void setExecutor(Executor executor) {
-        this.executor = executor;
-    }
-
-    @Override
-    public void addSslHostConfig(SSLHostConfig sslHostConfig) {
-
-    }
-
-    @Override
-    public SSLHostConfig[] findSslHostConfigs() {
-        return new SSLHostConfig[0];
-    }
-
-    @Override
-    public void addUpgradeProtocol(UpgradeProtocol upgradeProtocol) {
 
     }
 
     @Override
     protected void initInternal() throws LifecycleException {
 
+        if (request == null) {
+            request = new HttpRequest();
+        }
+        if (response == null) {
+            response = new HttpResponse();
+        }
     }
 
     @Override
     protected void startInternal() throws LifecycleException {
         setState(LifecycleState.STARTING);
-        endpoint.start();
+        configSocketAndProcess(socketChannel);
+//        endpoint.start();
     }
 
     @Override
     protected void stopInternal() throws LifecycleException {
-
+        setState(LifecycleState.STOPPING);
     }
 
     @Override
     protected void destroyInternal() throws LifecycleException {
 
     }
+
+    @Setter
+    @Getter
+    TestEndpoint endpoint;
+
 }

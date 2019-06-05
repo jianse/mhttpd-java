@@ -1,6 +1,7 @@
 package cn.ntboy.mhttpd.protocol;
 
 import cn.ntboy.mhttpd.Lifecycle;
+import cn.ntboy.mhttpd.connector.Connector;
 import cn.ntboy.mhttpd.util.net.SSLHostConfig;
 
 import java.util.concurrent.Executor;
@@ -22,4 +23,8 @@ public interface ProtocolHandler extends Lifecycle {
     public SSLHostConfig[] findSslHostConfigs();
 
     public void addUpgradeProtocol(UpgradeProtocol upgradeProtocol);
+
+    public void setConnector(Connector connector);
+
+    public Connector getConnector();
 }

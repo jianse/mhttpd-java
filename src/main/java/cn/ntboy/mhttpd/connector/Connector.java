@@ -1,4 +1,4 @@
-package cn.ntboy.mhttpd.util.net;
+package cn.ntboy.mhttpd.connector;
 
 import cn.ntboy.mhttpd.Executor;
 import cn.ntboy.mhttpd.LifecycleException;
@@ -6,6 +6,7 @@ import cn.ntboy.mhttpd.LifecycleState;
 import cn.ntboy.mhttpd.Service;
 import cn.ntboy.mhttpd.protocol.ProtocolHandler;
 import cn.ntboy.mhttpd.util.LifecycleBase;
+import cn.ntboy.mhttpd.util.net.Acceptor;
 import cn.ntboy.mhttpd.util.res.StringManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
@@ -57,7 +60,7 @@ public class Connector extends LifecycleBase {
     public Connector(String protocol) throws IOException {
 
         if ("HTTP/1.1".equals(protocol)) {
-            protocolHandlerClassName = "cn.ntboy.ProtocolHandler";
+            protocolHandlerClassName = "cn.ntboy.HTTP11Protocol";
         } else {
             protocolHandlerClassName = protocol;
         }
@@ -72,6 +75,7 @@ public class Connector extends LifecycleBase {
         } finally {
             this.protocolHandler = p;
         }
+        this.protocolHandler.setConnector(this);
     }
 
     public int getConnectionTimeout() {
@@ -103,7 +107,20 @@ public class Connector extends LifecycleBase {
     }
 
     public void setPort(int port) {
-        this.port = port;
+        Class clazz=protocolHandler.getClass();
+        Method setPort = null;
+        try {
+            setPort = clazz.getMethod("setPort",int.class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        try {
+            setPort.invoke(protocolHandler,port);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isRunning() {

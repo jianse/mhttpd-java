@@ -1,8 +1,11 @@
 package cn.ntboy.mhttpd.util.net;
 
+import cn.ntboy.HTTP11Protocol;
+import cn.ntboy.mhttpd.protocol.ProtocolHandler;
 import cn.ntboy.mhttpd.util.LifecycleBase;
 import cn.ntboy.mhttpd.util.threads.LimitLatch;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -81,4 +84,9 @@ public abstract class AbstractEndpoint<S,U> extends LifecycleBase {
     public void destroySocket(U socket){
         closeSocket(socket);
     }
+
+    @Setter
+    @Getter
+    ProtocolHandler protocolHandler = null;
+
 }

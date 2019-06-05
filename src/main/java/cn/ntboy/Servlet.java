@@ -21,6 +21,7 @@ public class Servlet {
     private String defaultIndex="index.{html,htm}";
 
     void service(Request request, Response response) throws IOException {
+        baseDir = request.getContext().getDocBase();
         switch (request.getMethod()){
             case "GET":
                 doGet(request,response);

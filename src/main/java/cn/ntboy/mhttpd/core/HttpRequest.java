@@ -1,6 +1,9 @@
 package cn.ntboy.mhttpd.core;
 
+import cn.ntboy.mhttpd.Context;
 import cn.ntboy.mhttpd.Request;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.nio.charset.Charset;
@@ -94,4 +97,10 @@ public class HttpRequest implements Request {
     public String getReferer() {
         return header.get("Referer");
     }
+
+    @Getter
+    @Setter
+    Context context =null;
+
+
 }

@@ -1,5 +1,6 @@
 package cn.ntboy;
 
+import cn.ntboy.mhttpd.startup.HostRoleSet;
 import cn.ntboy.mhttpd.Server;
 import cn.ntboy.mhttpd.startup.Bootstrap;
 import cn.ntboy.mhttpd.startup.ConnectorCreateRule;
@@ -117,6 +118,15 @@ public class Mhttpd{
                 "addService",
                 "cn.ntboy.mhttpd.Service");
 
+        //Executor
+        digester.addObjectCreate("Server/Service/Executor",
+                "cn.ntboy.mhttpd.core.StandardThreadExecutor",
+                "className");
+        digester.addSetProperties("Server/Service/Executor");
+        digester.addSetNext("Server/Service/Executor",
+                "addExecutor",
+                "cn.ntboy.mhttpd.Executor");
+
         //Connector
         digester.addRule("Server/Service/Connector",
                 new ConnectorCreateRule());
@@ -125,6 +135,32 @@ public class Mhttpd{
                 "addConnector",
                 "cn.ntboy.mhttpd.util.net.Connector");
 
+        //Contexts
+        digester.addObjectCreate("Server/Service/Contexts",
+                "cn.ntboy.mhttpd.core.StandardContexts",
+                "className");
+        digester.addSetNext("Server/Service/Contexts",
+                "setContexts",
+                "cn.ntboy.mhttpd.Contexts");
+        digester.addObjectCreate("Server/Service/Contexts/Context",
+                "cn.ntboy.mhttpd.core.StandardContext",
+                "className");
+        digester.addSetProperties("Server/Service/Contexts/Context");
+        digester.addSetNext("Server/Service/Contexts/Context",
+                "addContext",
+                "cn.ntboy.mhttpd.Context");
+
+
+        //Engine/Container
+//        digester.addObjectCreate("Server/Service/Engine",
+//                "cn.ntboy.mhttpd.core.StandardEngine",
+//                "className");
+//        digester.addSetProperties("Server/Service/Engine");
+//        digester.addSetNext("Server/Service/Engine",
+//                "setContainer",
+//                "cn.ntboy.mhttpd.Engine");
+//
+//        digester.addRuleSet(new HostRoleSet("Server/Service/Engine/Host") );
         return digester;
     }
 

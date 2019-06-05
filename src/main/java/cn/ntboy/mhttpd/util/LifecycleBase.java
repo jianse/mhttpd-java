@@ -85,7 +85,7 @@ public abstract class LifecycleBase implements Lifecycle{
 
             stopInternal();
 
-            if (!state.equals(LifecycleState.STARTING) && !state.equals(LifecycleState.FAILED)) {
+            if (!state.equals(LifecycleState.STOPPING) && !state.equals(LifecycleState.FAILED)) {
                 invalidTransition(Lifecycle.AFTER_STOP_EVENT);
             }
             setStateInternal(LifecycleState.STOPPED, false);

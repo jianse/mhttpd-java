@@ -1,6 +1,6 @@
 package cn.ntboy.mhttpd;
 
-import cn.ntboy.mhttpd.util.net.Connector;
+import cn.ntboy.mhttpd.connector.Connector;
 
 public interface Service extends Lifecycle{
     public String getName();
@@ -17,8 +17,6 @@ public interface Service extends Lifecycle{
 
     public void removeConnector(Connector connector);
 
-
-
     public void addExecutor(Executor ex);
 
     public Executor[] findExecutors();
@@ -26,4 +24,10 @@ public interface Service extends Lifecycle{
     public Executor getExecutor(String name);
 
     public void removeExecutor(Executor ex);
+
+    public void setContainer(Engine engine);
+
+    public void setContexts(Contexts contexts);
+
+    public Contexts getContexts();
 }

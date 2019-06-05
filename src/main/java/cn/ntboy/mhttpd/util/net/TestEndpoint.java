@@ -1,9 +1,14 @@
 package cn.ntboy.mhttpd.util.net;
 
+import cn.ntboy.HTTP11Protocol;
+import cn.ntboy.RequestParser;
 import cn.ntboy.mhttpd.LifecycleException;
 import cn.ntboy.mhttpd.LifecycleState;
-import cn.ntboy.ProtocolHandler;
+import cn.ntboy.mhttpd.protocol.ProtocolHandler;
+import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,12 +19,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> {
+    private static final Logger logger = LogManager.getLogger(TestEndpoint.class);
 
 //    private volatile boolean running=false;
 
     private ServerSocketChannel serverSock=null;
     private boolean paused = true;
     @Setter
+    @Getter
     private Executor executor = null;
     private InetAddress address;
 
@@ -27,6 +34,7 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
     protected void bind() throws Exception {
         serverSock=ServerSocketChannel.open();
         InetSocketAddress addr = new InetSocketAddress(getAddress(), getPort());
+        logger.debug("prepare to bind"+getAddress()+getPort());
         serverSock.socket().bind(addr,getAcceptCount());
 //        startInternal();
 
@@ -39,10 +47,11 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
 
     @Override
     public boolean setSocketOptions(SocketChannel socket) {
-        //process the connection
-        ProtocolHandler protocolHandler = new ProtocolHandler();
-        protocolHandler.setSocketChannel(socket);
-        executor.execute(protocolHandler);
+        RequestParser requestParser = new RequestParser();
+        requestParser.setSocketChannel(socket);
+        requestParser.setEndpoint(this);
+        executor.execute(requestParser);
+
         return true;
     }
 
@@ -87,14 +96,6 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
             startAcceptorThreads();
         }
 
-//        while (running){
-//            SocketChannel socketChannel = serverSock.accept();
-//
-//            ProtocolHandler protocolHandler = new ProtocolHandler();
-//            protocolHandler.setSocketChannel(socketChannel);
-//            executor.execute(protocolHandler);
-////            protocolHandler.configSocketAndProcess(socketChannel);
-//        }
     }
 
     @Override
@@ -126,21 +127,16 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
     private void createExecutor() {
         //todo: init executor
         executor = Executors.newFixedThreadPool(10);
-//        executor =
-    }
-
-
-    private Executor getExecutor() {
-        return executor;
     }
 
     private int getAcceptCount() {
         return 10000;
     }
 
-    private int getPort() {
-        return 8080;
-    }
+    @Setter
+    @Getter
+    private int port = -1;
+
 
     private InetAddress getAddress() {
         return address;
@@ -162,4 +158,5 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
         }
         serverSock = null;
     }
+
 }
