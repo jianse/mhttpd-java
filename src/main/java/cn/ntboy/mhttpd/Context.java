@@ -12,4 +12,7 @@ public interface Context {
 
     public String getType();
     public void setType(String type);
+
+    public String getDefaultIndex();
+    public void setDefaultIndex(String index);
 }

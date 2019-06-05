@@ -16,17 +16,17 @@ public class StandardContexts implements Contexts {
     }
 
     public Context getContext(String path){
-        System.out.println(path);
+//        System.out.println(path);
         String key=getFirstMatchKey(path);
-        System.out.println(key);
+//        System.out.println(key);
         return contexts.get(key);
     }
 
     private String getFirstMatchKey(String path) {
         List<String> list = getSortedKeyList();
-        System.out.println(list);
+//        System.out.println(list);
         for (String key : list) {
-            if(key.startsWith(path)){
+            if(path.startsWith(key)){
                 return key;
             }
         }
@@ -41,7 +41,7 @@ public class StandardContexts implements Contexts {
             public int compare(String o1, String o2) {
                 int p1= o1.split("[\\/]").length;
                 int p2=o2.split("[\\/]").length;
-                return p1-p2;
+                return p2-p1;
             }
         });
         return list;

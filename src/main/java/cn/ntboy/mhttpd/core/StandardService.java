@@ -21,7 +21,7 @@ public class StandardService extends LifecycleBase implements Service{
     private Engine engine = null;
 
     /**
-     * The list of executors held by the service.
+     * The list of executors held by the process.
      */
     protected final ArrayList<Executor> executors = new ArrayList<>();
 //    private Engine engine =null;

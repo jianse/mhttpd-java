@@ -12,6 +12,8 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.sql.SQLOutput;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -27,6 +29,14 @@ public class Test {
 //        Thread.currentThread().wait(100000);
     }
 
+    @org.junit.jupiter.api.Test
+    void envTest(){
+        System.
+        Map<String, String> getenv = System.getenv();
+        getenv.forEach((k,v)->{
+            System.out.println(k+":"+v);
+        });
+    }
 
 
 }

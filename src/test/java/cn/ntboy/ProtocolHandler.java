@@ -4,6 +4,7 @@ import cn.ntboy.mhttpd.Request;
 import cn.ntboy.mhttpd.Response;
 import cn.ntboy.mhttpd.core.HttpRequest;
 import cn.ntboy.mhttpd.core.HttpResponse;
+import cn.ntboy.processor.Processor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,10 +16,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 
 public class ProtocolHandler implements Runnable {
 
@@ -165,9 +162,9 @@ public class ProtocolHandler implements Runnable {
         this.parseRequestHeaders(sb.substring(reqline+2,iheaderEnd));
         System.out.println(this.getRequest());
 
-        Servlet servlet = new Servlet();
+        Processor processor = new Processor();
         try{
-            servlet.service(request,response);
+            processor.process(request,response);
         }catch (Exception e){
             response.sendError(500);
         }

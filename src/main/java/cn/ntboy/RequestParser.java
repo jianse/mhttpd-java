@@ -1,14 +1,11 @@
 package cn.ntboy;
 
 import cn.ntboy.mhttpd.*;
-import cn.ntboy.mhttpd.connector.Connector;
 import cn.ntboy.mhttpd.core.HttpRequest;
 import cn.ntboy.mhttpd.core.HttpResponse;
-import cn.ntboy.mhttpd.protocol.ProtocolHandler;
-import cn.ntboy.mhttpd.protocol.UpgradeProtocol;
 import cn.ntboy.mhttpd.util.LifecycleBase;
-import cn.ntboy.mhttpd.util.net.SSLHostConfig;
 import cn.ntboy.mhttpd.util.net.TestEndpoint;
+import cn.ntboy.processor.Processor;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -17,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -24,7 +22,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executor;
 
 public class RequestParser extends LifecycleBase implements Runnable {
 
@@ -48,9 +45,7 @@ public class RequestParser extends LifecycleBase implements Runnable {
     @Getter
     @Setter
     private int maxHttpHeaderSize = 1024 * 8;
-    @Getter
-    @Setter
-//    private String baseDir = "D:/www";
+
     private String[] protocols = {"HTTP/1.0", "HTTP/1.1", "HTTP/2.0"};
     private String[] methods = {"GET", "POST", "PUT", "DELETE", "CONNECT", "HEAD", "TRACE", "OPTIONS"};
 
@@ -130,8 +125,6 @@ public class RequestParser extends LifecycleBase implements Runnable {
             do {
                 buf.clear();
                 len = socketChannel.read(buf);
-//                System.out.println(new String(buf.array()));
-//                buf.rewind();
                 if (len == -1) {
                     //发送端主动关闭了连接 我们也关闭连接就行了
                     socketChannel.close();
@@ -150,28 +143,21 @@ public class RequestParser extends LifecycleBase implements Runnable {
 
         this.parseRequestLine(sb.substring(0, reqline));
         int iheaderEnd = sb.indexOf("\r\n\r\n");
-
         this.parseRequestHeaders(sb.substring(reqline + 2, iheaderEnd));
-
-        System.out.println(request);
-
-        ProtocolHandler protocolHandler = endpoint.getProtocolHandler();
-        System.out.println(protocolHandler);
-        Connector connector = protocolHandler.getConnector();
-        System.out.println(connector);
-        Service service = connector.getService();
-        System.out.println(service);
-        Contexts contexts = service.getContexts();
-        System.out.println(contexts);
-        Context context = contexts.getContext(request.getPath());
-        System.out.println(context);
         request.setContext(endpoint.getProtocolHandler().getConnector().getService().getContexts().getContext(request.getPath()));
-        System.out.println(request);
-        Servlet servlet = new Servlet();
+//        System.out.println(request);
+        Processor processor = new Processor();
         try {
-            servlet.service(request, response);
+            processor.process(request, response);
         } catch (Exception e) {
+            OutputStream os = response.getOutputStream();
+            try {
+                os.write(e.toString().getBytes());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
             response.sendError(500);
+            e.printStackTrace();
         }
 
         try {
@@ -231,13 +217,10 @@ public class RequestParser extends LifecycleBase implements Runnable {
         try {
             init();
             start();
-//            System.out.println(getState());
             stop();
             destroy();
         } catch (LifecycleException e) {
             //todo:do some log
-//            System.out.println(e);
-//            e.printStackTrace();
         }
 
 
@@ -258,7 +241,6 @@ public class RequestParser extends LifecycleBase implements Runnable {
     protected void startInternal() throws LifecycleException {
         setState(LifecycleState.STARTING);
         configSocketAndProcess(socketChannel);
-//        endpoint.start();
     }
 
     @Override

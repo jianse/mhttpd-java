@@ -25,6 +25,11 @@ public class HttpResponse implements cn.ntboy.mhttpd.Response {
     }
 
     @Override
+    public void sendError(HTTPStatusCode code) {
+        this.statusCode =code;
+    }
+
+    @Override
     public OutputStream getOutputStream(){
         return outputStream;
     }

@@ -7,11 +7,11 @@ import cn.ntboy.mhttpd.Response;
 import cn.ntboy.mhttpd.connector.Connector;
 import cn.ntboy.mhttpd.core.HttpRequest;
 import cn.ntboy.mhttpd.core.HttpResponse;
-import cn.ntboy.mhttpd.protocol.ProtocolHandler;
 import cn.ntboy.mhttpd.protocol.UpgradeProtocol;
 import cn.ntboy.mhttpd.util.LifecycleBase;
 import cn.ntboy.mhttpd.util.net.SSLHostConfig;
 import cn.ntboy.mhttpd.util.net.TestEndpoint;
+import cn.ntboy.processor.Processor;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -139,7 +139,6 @@ public class HTTP11Protocol extends LifecycleBase implements cn.ntboy.mhttpd.pro
             do {
                 buf.clear();
                 len = socketChannel.read(buf);
-                System.out.println(new String(buf.array()));
                 buf.rewind();
                 if (len == -1) {
                     //发送端主动关闭了连接 我们也关闭连接就行了
@@ -161,11 +160,10 @@ public class HTTP11Protocol extends LifecycleBase implements cn.ntboy.mhttpd.pro
         int iheaderEnd = sb.indexOf("\r\n\r\n");
 
         this.parseRequestHeaders(sb.substring(reqline + 2, iheaderEnd));
-        System.out.println(this.getRequest());
 
-        Servlet servlet = new Servlet();
+        Processor processor = new Processor();
         try {
-            servlet.service(request, response);
+            processor.process(request, response);
         } catch (Exception e) {
             response.sendError(500);
         }

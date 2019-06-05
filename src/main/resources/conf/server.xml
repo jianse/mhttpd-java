@@ -8,7 +8,7 @@
   <!-- A "Service" is a collection of one or more "Connectors" that share
        a single "Container" Note:  A "Service" is not itself a "Container",
        so you may not define subcomponents such as "Valves" at this level.
-       Documentation at /docs/config/service.html
+       Documentation at /docs/config/process.html
    -->
   <Service name="Catalina">
 
@@ -82,6 +82,7 @@
     <Contexts>
       <Context path="/cgi-bin" docBase="www/cgi-bin" type="cgi"/>
       <Context path="/" docBase="www/html" type="static"/>
+      <Context path="/web" docBase="www/cgi-bin" type="cgi"/>
     </Contexts>
 <!--    <Engine name="Catalina" defaultHost="localhost">-->
 <!--      <Host name="localhost"  appBase="webapps" wwwRoot="www" cgiRoot="cgi-bin">-->
