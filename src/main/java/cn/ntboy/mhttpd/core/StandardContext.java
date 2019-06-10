@@ -14,7 +14,7 @@ public class StandardContext implements Context {
 
     @Getter
     @Setter
-    private  String path;
+    private  String path="/";
 
     @Override
     public void setDocBase(String docBase) {
@@ -31,11 +31,11 @@ public class StandardContext implements Context {
     }
 
     @Getter
-    private String docBase;
+    private String docBase ="www/html";
 
     @Getter
     @Setter
-    private String type;
+    private String type="static";
 
     @Getter
     @Setter

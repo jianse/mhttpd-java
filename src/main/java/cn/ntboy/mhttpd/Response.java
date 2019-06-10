@@ -23,4 +23,6 @@ public interface Response{
     void sendRedirect(String path);
 
     Map getHeader();
+
+    void setContentLength();
 }

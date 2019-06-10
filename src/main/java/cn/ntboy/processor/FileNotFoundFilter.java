@@ -10,9 +10,7 @@ public class FileNotFoundFilter implements Filter {
     @Override
     public FilterState doFilter(Request request, Response response) {
         Path path = RequestUtil.getVisitPath(request);
-//        System.out.println(path);
         if(!Files.exists(path)){
-            System.out.println(path);
             response.sendError(404);
             return FilterState.BREAK;
         }

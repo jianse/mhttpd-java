@@ -17,7 +17,7 @@ public class VisitDirectoryFilter implements Filter {
 
         Path file = RequestUtil.getVisitPath(request);
 
-        System.out.println("file"+file);
+//        System.out.println("file:"+file);
         if(Files.isDirectory(file)){
             response.sendRedirect(request.getPath()+"/");
             return FilterState.BREAK;

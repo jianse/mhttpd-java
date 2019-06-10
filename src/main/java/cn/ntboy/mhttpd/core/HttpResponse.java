@@ -53,6 +53,11 @@ public class HttpResponse implements cn.ntboy.mhttpd.Response {
     }
 
     @Override
+    public void setContentLength() {
+        header.put("Content-Length",String.valueOf(outputStream.size()));
+    }
+
+    @Override
     public ByteBuffer toByteBuffer() {
 
         return null;

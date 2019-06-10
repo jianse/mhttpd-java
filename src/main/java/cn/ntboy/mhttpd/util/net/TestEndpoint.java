@@ -36,8 +36,6 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
         InetSocketAddress addr = new InetSocketAddress(getAddress(), getPort());
         logger.debug("prepare to bind"+getAddress()+getPort());
         serverSock.socket().bind(addr,getAcceptCount());
-//        startInternal();
-
     }
 
     @Override

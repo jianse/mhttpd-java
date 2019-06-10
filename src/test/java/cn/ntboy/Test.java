@@ -10,10 +10,12 @@ import lombok.Setter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.SocketOption;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.sql.SQLOutput;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -31,12 +33,15 @@ public class Test {
 
     @org.junit.jupiter.api.Test
     void envTest(){
-        System.
-        Map<String, String> getenv = System.getenv();
-        getenv.forEach((k,v)->{
-            System.out.println(k+":"+v);
-        });
+
     }
 
-
+    @org.junit.jupiter.api.Test
+    void socketOptionTest() throws IOException {
+        ServerSocketChannel ss=ServerSocketChannel.open();
+        ss.bind(new InetSocketAddress(10080));
+        SocketChannel socketChannel = ss.accept();
+        Set<SocketOption<?>> options = socketChannel.socket().supportedOptions();
+        System.out.println(options);
+    }
 }

@@ -144,6 +144,7 @@ public class RequestParser extends LifecycleBase implements Runnable {
         this.parseRequestLine(sb.substring(0, reqline));
         int iheaderEnd = sb.indexOf("\r\n\r\n");
         this.parseRequestHeaders(sb.substring(reqline + 2, iheaderEnd));
+        logger.debug(request.getMethod()+" "+request.getPath());
         request.setContext(endpoint.getProtocolHandler().getConnector().getService().getContexts().getContext(request.getPath()));
 //        System.out.println(request);
         Processor processor = new Processor();
@@ -161,22 +162,7 @@ public class RequestParser extends LifecycleBase implements Runnable {
         }
 
         try {
-            this.socketChannel.write(ByteBuffer.wrap(this.response.getResponseHeader().getBytes()));
-            this.socketChannel.write(ByteBuffer.wrap(nl));
-            this.response.getHeader().forEach((k, v) -> {
-                try {
-                    this.socketChannel.write(ByteBuffer.wrap(((String) k).getBytes()));
-                    this.socketChannel.write(ByteBuffer.wrap(": ".getBytes()));
-                    this.socketChannel.write(ByteBuffer.wrap(((String) v).getBytes()));
-                    this.socketChannel.write(ByteBuffer.wrap(nl));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    //todo log or throw
-                }
-
-            });
-            this.socketChannel.write(ByteBuffer.wrap(nl));
-            this.socketChannel.write(ByteBuffer.wrap(this.response.getContent()));
+            writeToSocket();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -187,6 +173,25 @@ public class RequestParser extends LifecycleBase implements Runnable {
         } catch (IOException e) {
             //IGNORE
         }
+    }
+
+    private void writeToSocket() throws IOException {
+        this.socketChannel.write(ByteBuffer.wrap(this.response.getResponseHeader().getBytes()));
+        this.socketChannel.write(ByteBuffer.wrap(nl));
+        this.response.getHeader().forEach((k, v) -> {
+            try {
+                this.socketChannel.write(ByteBuffer.wrap(((String) k).getBytes()));
+                this.socketChannel.write(ByteBuffer.wrap(": ".getBytes()));
+                this.socketChannel.write(ByteBuffer.wrap(((String) v).getBytes()));
+                this.socketChannel.write(ByteBuffer.wrap(nl));
+            } catch (IOException e) {
+                e.printStackTrace();
+                //todo log or throw
+            }
+
+        });
+        this.socketChannel.write(ByteBuffer.wrap(nl));
+        this.socketChannel.write(ByteBuffer.wrap(this.response.getContent()));
     }
 
     private void parseRequestHeaders(String headerStr) {
