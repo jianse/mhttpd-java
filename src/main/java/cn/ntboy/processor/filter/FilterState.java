@@ -1,4 +1,4 @@
-package cn.ntboy.processor;
+package cn.ntboy.processor.filter;
 
 public enum FilterState {
     CONTINUE,BREAK

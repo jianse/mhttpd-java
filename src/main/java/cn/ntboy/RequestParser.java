@@ -176,6 +176,7 @@ public class RequestParser extends LifecycleBase implements Runnable {
     }
 
     private void writeToSocket() throws IOException {
+//        System.out.println(response);
         this.socketChannel.write(ByteBuffer.wrap(this.response.getResponseHeader().getBytes()));
         this.socketChannel.write(ByteBuffer.wrap(nl));
         this.response.getHeader().forEach((k, v) -> {

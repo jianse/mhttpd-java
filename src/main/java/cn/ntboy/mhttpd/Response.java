@@ -8,21 +8,22 @@ import java.util.Map;
 
 public interface Response{
 
-    void sendError(int ec);
-    void sendError(HTTPStatusCode code);
-
+    public void sendError(int ec);
+    public void sendError(HTTPStatusCode code);
 
     public OutputStream getOutputStream();
-
-    ByteBuffer toByteBuffer();
 
     public String getResponseHeader();
 
     public byte[] getContent();
 
-    void sendRedirect(String path);
+    public void sendRedirect(String path);
 
-    Map getHeader();
+    public Map getHeader();
 
-    void setContentLength();
+    public void setContentLength();
+
+    public void setContentType(String type);
+
+    public String toString();
 }

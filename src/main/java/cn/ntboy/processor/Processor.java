@@ -2,6 +2,7 @@ package cn.ntboy.processor;
 
 import cn.ntboy.mhttpd.Request;
 import cn.ntboy.mhttpd.Response;
+import cn.ntboy.processor.filter.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +17,8 @@ public class Processor {
         filters.add(new DefaultIndexFilter());
         filters.add(new SendFileFilter());
         filters.add(new CGIFilter());
-        filters.add(new ResponseContentLengthFilter());
+        filters.add(new ContentLengthFilter());
+        filters.add(new ContentTypeFilter());
     }
 
     public void process(Request request, Response response) throws IOException {

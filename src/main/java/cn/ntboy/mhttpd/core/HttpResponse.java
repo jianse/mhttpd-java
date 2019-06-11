@@ -2,6 +2,7 @@ package cn.ntboy.mhttpd.core;
 
 import cn.ntboy.mhttpd.protocol.http.HTTPStatusCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+@ToString
 public class HttpResponse implements cn.ntboy.mhttpd.Response {
     private ByteArrayOutputStream outputStream= new ByteArrayOutputStream();
 
@@ -54,12 +56,11 @@ public class HttpResponse implements cn.ntboy.mhttpd.Response {
 
     @Override
     public void setContentLength() {
-        header.put("Content-Length",String.valueOf(outputStream.size()));
+        this.header.put("Content-Length",String.valueOf(outputStream.size()));
     }
 
     @Override
-    public ByteBuffer toByteBuffer() {
-
-        return null;
+    public void setContentType(String type) {
+        this.header.put("Content-Type",type);
     }
 }

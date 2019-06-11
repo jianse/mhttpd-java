@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class RequestUtil {
-    static Path getVisitPath(Request request) {
+    public static Path getVisitPath(Request request) {
         Path cntPath = Paths.get(request.getContext().getPath());
         Path reqPath = Paths.get(request.getPath());
         Path relativize = cntPath.relativize(reqPath);

@@ -31,10 +31,7 @@ public class Mhttpd{
     private Server server;
 
     public static void main(String[] args) throws Exception {
-
-        String str =sm.getString("mhttpd.CommandLineArgs",Arrays.toString(args));
-        System.out.println(str);
-        log.debug(str);
+        log.debug(sm.getString("mhttpd.CommandLineArgs",Arrays.toString(args)));
         CommandLineParser parser = getCommandLineParser();
         parser.parse(args);
         if (start) {
