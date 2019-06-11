@@ -99,6 +99,12 @@ public class HttpRequest implements Request {
         return header.get("Content-Length");
     }
 
+
+
+    @Getter
+    @Setter
+    private byte[] requestBody=null;
+
     @Getter
     @Setter
     Context context =null;

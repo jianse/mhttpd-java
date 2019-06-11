@@ -93,4 +93,7 @@ public interface Request {
 
     String getContentLength();
 
+    byte[] getRequestBody();
+
+    void setRequestBody(byte[] body);
 }

@@ -18,6 +18,7 @@ public class HttpResponse implements cn.ntboy.mhttpd.Response {
     private ByteArrayOutputStream outputStream= new ByteArrayOutputStream();
 
     HTTPStatusCode statusCode = HTTPStatusCode.OK;
+    @Getter
     private boolean error=false;
 
     @Override

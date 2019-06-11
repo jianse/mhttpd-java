@@ -31,4 +31,6 @@ public interface Response{
     int getErrorCode();
 
     Charset getCharset();
+
+    boolean isError();
 }
