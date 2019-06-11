@@ -66,12 +66,6 @@ public interface Request {
      */
     String toString();
 
-    /**
-     * 设置请求的协议
-     * @param protocol 协议
-     */
-    void setProtocol(String protocol);
-
     String getHeader(String key);
 
     String setHeader(String key, String value);
@@ -83,4 +77,20 @@ public interface Request {
     void setContext(Context context);
 
     Context getContext();
+
+    String getProtocol();
+    /**
+     * 设置请求的协议
+     * @param protocol 协议
+     */
+    void setProtocol(String protocol);
+
+    String getQueryString();
+    void setQueryString(String queryString);
+
+    String getContentType();
+    void setContentType(String contentType);
+
+    String getContentLength();
+
 }

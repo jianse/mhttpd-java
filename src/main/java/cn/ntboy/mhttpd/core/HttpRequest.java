@@ -18,25 +18,25 @@ public class HttpRequest implements Request {
 
     private Charset charset = null;
 
+    @Getter
+    @Setter
     private String method;
 
+    @Getter
+    @Setter
     private String path;
-    
+
+    @Getter
+    @Setter
     private String protocol;
+
+    @Getter
+    @Setter
+    private String queryString;
 
     private Map<String,String> header= new HashMap<>();
 
     private Map<String,String> parameter= new HashMap<>();
-
-    @Override
-    public String getMethod() {
-        return this.method;
-    }
-
-    @Override
-    public void setMethod(String method) {
-        this.method = method;
-    }
 
     @Override
     public String getParameter(String key) {
@@ -48,15 +48,6 @@ public class HttpRequest implements Request {
         this.parameter.put(key,value);
     }
 
-    @Override
-    public void setPath(String path) {
-        this.path=path;
-    }
-
-    @Override
-    public String getPath() {
-        return this.path;
-    }
 
     @Override
     public void setDefaultCharset(Charset charset) {
@@ -71,11 +62,6 @@ public class HttpRequest implements Request {
     @Override
     public Charset getCharset() {
         return charset!=null?charset:defaultCharset;
-    }
-
-    @Override
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
     }
 
     @Override
@@ -98,9 +84,23 @@ public class HttpRequest implements Request {
         return header.get("Referer");
     }
 
+    @Override
+    public String getContentType() {
+        return header.get("Content-Type");
+    }
+
+    @Override
+    public void setContentType(String contentType) {
+        header.put("Content-Type",contentType);
+    }
+
+    @Override
+    public String getContentLength() {
+        return header.get("Content-Length");
+    }
+
     @Getter
     @Setter
     Context context =null;
-
 
 }

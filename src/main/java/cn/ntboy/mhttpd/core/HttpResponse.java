@@ -8,6 +8,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,9 +18,11 @@ public class HttpResponse implements cn.ntboy.mhttpd.Response {
     private ByteArrayOutputStream outputStream= new ByteArrayOutputStream();
 
     HTTPStatusCode statusCode = HTTPStatusCode.OK;
+    private boolean error=false;
 
     @Override
     public void sendError(int ec) {
+        this.error=true;
         try {
             this.statusCode=HTTPStatusCode.get(ec);
         } catch (Exception e) {
@@ -28,6 +32,7 @@ public class HttpResponse implements cn.ntboy.mhttpd.Response {
 
     @Override
     public void sendError(HTTPStatusCode code) {
+        this.error=true;
         this.statusCode =code;
     }
 
@@ -62,5 +67,21 @@ public class HttpResponse implements cn.ntboy.mhttpd.Response {
     @Override
     public void setContentType(String type) {
         this.header.put("Content-Type",type);
+    }
+
+    @Override
+    public int getErrorCode() {
+        if(error){
+            return statusCode.getCode();
+        }
+        return 200;
+    }
+
+    private Charset charset=null;
+    private Charset defaultCharset= StandardCharsets.UTF_8;
+
+    @Override
+    public Charset getCharset() {
+        return charset==null?defaultCharset:charset;
     }
 }

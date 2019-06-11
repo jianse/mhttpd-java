@@ -4,26 +4,31 @@ import cn.ntboy.mhttpd.protocol.http.HTTPStatusCode;
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 public interface Response{
 
-    public void sendError(int ec);
-    public void sendError(HTTPStatusCode code);
+    void sendError(int ec);
+    void sendError(HTTPStatusCode code);
 
-    public OutputStream getOutputStream();
+    OutputStream getOutputStream();
 
-    public String getResponseHeader();
+    String getResponseHeader();
 
-    public byte[] getContent();
+    byte[] getContent();
 
-    public void sendRedirect(String path);
+    void sendRedirect(String path);
 
-    public Map getHeader();
+    Map getHeader();
 
-    public void setContentLength();
+    void setContentLength();
 
-    public void setContentType(String type);
+    void setContentType(String type);
 
-    public String toString();
+    String toString();
+
+    int getErrorCode();
+
+    Charset getCharset();
 }
