@@ -16,15 +16,12 @@ public class StandardContexts implements Contexts {
     }
 
     public Context getContext(String path){
-//        System.out.println(path);
         String key=getFirstMatchKey(path);
-//        System.out.println(key);
         return contexts.get(key);
     }
 
     private String getFirstMatchKey(String path) {
         List<String> list = getSortedKeyList();
-//        System.out.println(list);
         for (String key : list) {
             if(path.startsWith(key)){
                 return key;
