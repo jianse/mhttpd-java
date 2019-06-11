@@ -1,0 +1,150 @@
+body {
+	text-align: center;
+}
+
+.center{
+	margin: auto;
+	position: absolute;
+	left: 0;
+	right: 0;
+}
+
+#container {
+	box-shadow: 3px 3px 10px #888888;
+	height: auto;
+	width: 760px;
+	border:2px solid;
+	border-radius:23px;
+}
+
+#nav {
+	text-align: center;
+	height: 80px;
+	line-height: 80px;
+	/*background-color: green;*/
+}
+#header{
+	height: 150px;
+	background-color: hotpink;
+	background-image: url("1.jpg");
+}
+#logo{
+	height: inherit;
+	width:236px;
+	background-repeat:no-repeat;
+	background-image: url("2.png") ;
+	background-position: center;
+	float: right;
+}
+
+#content {
+	height: 500px;
+}
+#mainContent{
+	float: left;
+	display: inline-block;
+	/*inner-padding: 10px 10px 0 10px;*/
+	width:65%;
+	height: inherit;
+}
+.text{
+	padding: 10px 10px 10px 10px;
+
+}
+.text a{
+	text-decoration: none;
+}
+
+#sideBar{
+	float: left;
+	display: inline-block;
+	width: 35%;
+	height: inherit;
+}
+
+#footer {
+	border-top: solid 1px gray;
+	height: 90px;
+	color: gray;
+	font-size: small;
+}
+
+ul,li{
+	padding: 0;
+	margin: 0;
+	border: 0;
+}
+
+#nav ul li{
+	line-height: inherit;
+	float: left;
+	width: 120px;
+
+	list-style: none;
+}
+#nav ul{
+
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	float: left;
+	height: inherit;
+}
+#nav ul li a{
+	width: inherit;
+	height: inherit;
+	display: block;
+}
+#nav a:link,a:visited{
+	color:black;
+	text-decoration: none;
+}
+#nav a:hover{
+	color: #db6d16;
+}
+#nav a:active{
+	background-color: #db6d16;
+	color: white;
+}
+
+div,body {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+.text h1 {
+	font-size: larger;
+	text-align: left;
+}
+.text h2{
+	margin-bottom: 0;
+	text-align: left;
+	font-size: medium;
+}
+.text h2+p{
+	margin-top: 0;
+}
+.text p{
+	text-align: left;
+
+}
+#sideBar a:link,#sideBar a:hover,#sideBar a:active,#sideBar a:visited,#sideBar h1{
+	color: #b2c170;
+	text-decoration: none;
+}
+#about a:link,#about h1{
+	color:#db6d16;
+}
+#contact_us a:link,#contact_us h1{
+	color: #71544c; ;
+}
+
+#copyright {
+	float: left;
+	text-align: left;
+}
+#footer_link{
+	float: right;
+	text-align: right;
+}
+
