@@ -2,26 +2,26 @@ package cn.ntboy.mhttpd;
 
 public interface Server extends Lifecycle{
 
-    public String getAddress();
+    String getAddress();
 
-    public void setAddress(String address);
+    void setAddress(String address);
 
-    public int getPort();
+    int getPort();
 
-    public void setPort(int port);
+    void setPort(int port);
 
-    public String getShutdown();
+    String getShutdown();
 
-    public void setShutdown(String command);
+    void setShutdown(String command);
 
-    public void await();
+    void await();
 
-    public void addService(Service service);
+    void addService(Service service);
 
-    public Service findService(String name);
+    Service findService(String name);
 
-    public Service[] findServices();
+    Service[] findServices();
 
-    public void removeService(Service service);
+    void removeService(Service service);
 
 }

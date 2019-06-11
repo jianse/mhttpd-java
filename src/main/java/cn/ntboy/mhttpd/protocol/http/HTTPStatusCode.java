@@ -18,7 +18,7 @@ public enum  HTTPStatusCode {
     private String name;
 
 
-    private HTTPStatusCode(int code, String name) {
+    HTTPStatusCode(int code, String name) {
         this.code = code;
         this.name = name;
     }

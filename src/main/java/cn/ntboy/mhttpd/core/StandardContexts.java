@@ -39,8 +39,8 @@ public class StandardContexts implements Contexts {
         Collections.sort(list, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
-                int p1= o1.split("[\\/]").length;
-                int p2=o2.split("[\\/]").length;
+                int p1= o1.split("[/]").length;
+                int p2=o2.split("[/]").length;
                 return p2-p1;
             }
         });

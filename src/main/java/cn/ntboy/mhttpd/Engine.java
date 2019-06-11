@@ -2,11 +2,11 @@ package cn.ntboy.mhttpd;
 
 public interface Engine extends Lifecycle{
 
-    public String getDefaultHost();
+    String getDefaultHost();
 
-    public void setDefaultHost(String defaultHost);
+    void setDefaultHost(String defaultHost);
 
-    public Service getService();
+    Service getService();
 
-    public void setService(Service service);
+    void setService(Service service);
 }

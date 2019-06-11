@@ -17,7 +17,7 @@ public enum LifecycleState{
     private final boolean available;
     private final String lifecycleEvent;
 
-    private LifecycleState(boolean available, String lifecycleEvent) {
+    LifecycleState(boolean available, String lifecycleEvent) {
         this.available = available;
         this.lifecycleEvent = lifecycleEvent;
     }

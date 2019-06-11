@@ -3,31 +3,31 @@ package cn.ntboy.mhttpd;
 import cn.ntboy.mhttpd.connector.Connector;
 
 public interface Service extends Lifecycle{
-    public String getName();
+    String getName();
 
-    public void setName(String name);
+    void setName(String name);
 
-    public Server getServer();
+    Server getServer();
 
-    public void setServer(Server server);
+    void setServer(Server server);
 
-    public void addConnector(Connector connector);
+    void addConnector(Connector connector);
 
-    public Connector[] findConnectors();
+    Connector[] findConnectors();
 
-    public void removeConnector(Connector connector);
+    void removeConnector(Connector connector);
 
-    public void addExecutor(Executor ex);
+    void addExecutor(Executor ex);
 
-    public Executor[] findExecutors();
+    Executor[] findExecutors();
 
-    public Executor getExecutor(String name);
+    Executor getExecutor(String name);
 
-    public void removeExecutor(Executor ex);
+    void removeExecutor(Executor ex);
 
-    public void setContainer(Engine engine);
+    void setContainer(Engine engine);
 
-    public void setContexts(Contexts contexts);
+    void setContexts(Contexts contexts);
 
-    public Contexts getContexts();
+    Contexts getContexts();
 }

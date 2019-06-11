@@ -10,7 +10,7 @@ public class ConnectorCreateRule extends Rule{
 
     @Override
     public void begin(String namespace, String name, Attributes attributes) throws Exception {
-        Service service = (Service) getDigester().peek();
+        Service service = getDigester().peek();
         Executor ex =null;
         if(attributes.getValue("executor")!=null){
             ex =service.getExecutor(attributes.getValue("executor"));

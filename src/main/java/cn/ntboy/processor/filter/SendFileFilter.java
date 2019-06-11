@@ -12,11 +12,18 @@ import java.nio.file.Path;
 
 public class SendFileFilter implements Filter {
     @Override
-    public FilterState doFilter(Request request, Response response) throws IOException {
+    public FilterState doInRequest(Request request, Response response) throws IOException {
         if(request.getContext().getType().equals("static")){
             Path path = RequestUtil.getVisitPath(request);
             Files.copy(path,response.getOutputStream());
+            return FilterState.BREAK;
         }
+        return FilterState.CONTINUE;
+
+    }
+
+    @Override
+    public FilterState doInResponse(Request request, Response response) throws IOException {
         return FilterState.CONTINUE;
     }
 }

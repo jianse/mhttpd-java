@@ -4,6 +4,7 @@ import cn.ntboy.mhttpd.Request;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class RequestUtil {
     public static Path getVisitPath(Request request) {
@@ -20,5 +21,23 @@ public class RequestUtil {
 
     public static boolean isStatic(Request request){
         return request.getContext().getType().equals("static");
+    }
+
+    public static String[] createCGIEnv(Request request){
+        ArrayList<String> list = new ArrayList<>();
+        list.add("SERVER_NAME=");
+        list.add("SERVER_PROTOCOL="+request.getProtocol());
+        list.add("REQUEST_METHOD="+request.getMethod());
+        setEnvWithCheck(list, request.getUserAgent(), "HTTP_USER_AGENT=");
+        setEnvWithCheck(list,request.getQueryString(),"QUERY_STRING=");
+        setEnvWithCheck(list, request.getContentType(), "CONTENT_TYPE=");
+        setEnvWithCheck(list,request.getContentLength(),"CONTENT_LENGTH=");
+        return list.toArray(new String[0]);
+    }
+
+    private static void setEnvWithCheck(ArrayList<String> list, String value, String s) {
+        if (value != null&&!value.isBlank()) {
+            list.add(s + value);
+        }
     }
 }

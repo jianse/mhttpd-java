@@ -6,21 +6,21 @@ import java.net.URI;
 
 public interface ConfigurationSource{
 
-    public default Resource getServerXml() throws IOException {
+    default Resource getServerXml() throws IOException {
         return getConfResource("server.xml");
     }
 
-    public default Resource getConfResource(String name)
+    default Resource getConfResource(String name)
             throws IOException {
         String fullName = "conf/" + name;
         return getResource(fullName);
     }
 
-    public Resource getResource(String name) throws IOException;
+    Resource getResource(String name) throws IOException;
 
-    public URI getURI(String name);
+    URI getURI(String name);
 
-    public class Resource implements AutoCloseable{
+    class Resource implements AutoCloseable{
         private final InputStream inputStream;
         private final URI uri;
 

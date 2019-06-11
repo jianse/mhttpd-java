@@ -64,7 +64,7 @@ public class Servlet {
             }
         }else {
             response.sendError(404);
-            response.getOutputStream().write(new String("404").getBytes());
+            response.getOutputStream().write("404".getBytes());
             return;
         }
 

@@ -8,23 +8,23 @@ import java.util.concurrent.Executor;
 
 public interface ProtocolHandler extends Lifecycle {
 
-    public void pause();
+    void pause();
 
-    public void resume();
+    void resume();
 
-    public void closeServerSocketGraceful();
+    void closeServerSocketGraceful();
 
-    public Executor getExecutor();
+    Executor getExecutor();
 
-    public void setExecutor(Executor executor);
+    void setExecutor(Executor executor);
 
-    public void addSslHostConfig(SSLHostConfig sslHostConfig);
+    void addSslHostConfig(SSLHostConfig sslHostConfig);
 
-    public SSLHostConfig[] findSslHostConfigs();
+    SSLHostConfig[] findSslHostConfigs();
 
-    public void addUpgradeProtocol(UpgradeProtocol upgradeProtocol);
+    void addUpgradeProtocol(UpgradeProtocol upgradeProtocol);
 
-    public void setConnector(Connector connector);
+    void setConnector(Connector connector);
 
-    public Connector getConnector();
+    Connector getConnector();
 }

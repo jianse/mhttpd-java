@@ -52,7 +52,7 @@ public class CommandLineParser{
                 if(temp.startsWith(shortOptionPrefix)){
                     temp = temp.substring(shortOptionPrefix.length());
                 }
-                Option option = (Option) optionMap.get(temp);
+                Option option = optionMap.get(temp);
                 if(option==null){
                     this.defaultHandler.handle(temp,i,null);
                 }else{

@@ -86,6 +86,7 @@ public class RequestParser extends LifecycleBase implements Runnable {
     }
 
     private void parseQueryString(String param) {
+        request.setQueryString(param);
         String[] split = param.split("&");
         for (String item : split) {
             String[] kv = item.split("=");
@@ -146,7 +147,6 @@ public class RequestParser extends LifecycleBase implements Runnable {
         this.parseRequestHeaders(sb.substring(reqline + 2, iheaderEnd));
         logger.debug(request.getMethod()+" "+request.getPath());
         request.setContext(endpoint.getProtocolHandler().getConnector().getService().getContexts().getContext(request.getPath()));
-//        System.out.println(request);
         Processor processor = new Processor();
         try {
             processor.process(request, response);
@@ -169,7 +169,9 @@ public class RequestParser extends LifecycleBase implements Runnable {
 
         try {
             socketChannel.shutdownOutput();
+//            System.out.println(System.currentTimeMillis());
             socketChannel.close();
+//            System.out.println(System.currentTimeMillis());
         } catch (IOException e) {
             //IGNORE
         }
@@ -177,6 +179,7 @@ public class RequestParser extends LifecycleBase implements Runnable {
 
     private void writeToSocket() throws IOException {
 //        System.out.println(response);
+//        System.out.println(System.currentTimeMillis());
         this.socketChannel.write(ByteBuffer.wrap(this.response.getResponseHeader().getBytes()));
         this.socketChannel.write(ByteBuffer.wrap(nl));
         this.response.getHeader().forEach((k, v) -> {
@@ -193,6 +196,7 @@ public class RequestParser extends LifecycleBase implements Runnable {
         });
         this.socketChannel.write(ByteBuffer.wrap(nl));
         this.socketChannel.write(ByteBuffer.wrap(this.response.getContent()));
+//        System.out.println(System.currentTimeMillis());
     }
 
     private void parseRequestHeaders(String headerStr) {

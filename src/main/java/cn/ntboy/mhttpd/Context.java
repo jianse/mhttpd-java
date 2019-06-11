@@ -4,15 +4,15 @@ import lombok.ToString;
 
 
 public interface Context {
-    public String getPath();
-    public void setPath(String path);
+    String getPath();
+    void setPath(String path);
 
-    public String getDocBase();
-    public void setDocBase(String docBase);
+    String getDocBase();
+    void setDocBase(String docBase);
 
-    public String getType();
-    public void setType(String type);
+    String getType();
+    void setType(String type);
 
-    public String getDefaultIndex();
-    public void setDefaultIndex(String index);
+    String getDefaultIndex();
+    void setDefaultIndex(String index);
 }
