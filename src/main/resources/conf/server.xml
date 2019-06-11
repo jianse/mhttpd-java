@@ -80,7 +80,7 @@
     <Engine name="Catalina" defaultHost="localhost" jvmRoute="jvm1">
     -->
     <Contexts>
-      <Context path="/cgi-bin" docBase="www/cgi-bin" type="cgi" defaultIndex="index.{html,htm}"/>
+      <Context path="/cgi-bin" docBase="www/cgi-bin" type="cgi" defaultIndex="index.{htm,html}"/>
       <Context path="/" docBase="www/html" type="static"/>
 <!--      <Context path="/web" docBase="www/cgi-bin" type="cgi"/>-->
     </Contexts>
