@@ -39,7 +39,7 @@ public class Connector extends LifecycleBase {
     protected String protocolHandlerClassName = null;
     protected ProtocolHandler protocolHandler = null;
     protected boolean running = false;
-    StringManager sm = StringManager.getManager(Connector.class);
+    private StringManager sm = StringManager.getManager(Connector.class);
     private Charset uriCharset = StandardCharsets.UTF_8;
     private int port = 18080;
     private ServerSocket serverSocket = null;
@@ -102,9 +102,7 @@ public class Connector extends LifecycleBase {
         this.service = service;
     }
 
-    public int getPort() {
-        return port;
-    }
+
 
     public void setPort(int port) {
         Class clazz=protocolHandler.getClass();
@@ -157,9 +155,6 @@ public class Connector extends LifecycleBase {
     @Override
     protected void initInternal() throws LifecycleException {
         logger.debug("initializing connector...");
-
-//        if(executor==null)
-
         try {
             protocolHandler.init();
         } catch (Exception e) {
@@ -170,10 +165,6 @@ public class Connector extends LifecycleBase {
 
     @Override
     protected void startInternal() throws LifecycleException {
-        //setState(LifecycleState.STARTING);
-        if (getPort() < 0) {
-            throw new LifecycleException(sm.getString("connector.invalidPort", getPort()));
-        }
         setState(LifecycleState.STARTING);
         try {
             protocolHandler.start();
@@ -181,10 +172,6 @@ public class Connector extends LifecycleBase {
         } catch (Exception e) {
             throw new LifecycleException(sm.getString("connector.protocolHandlerStartFailed"), e);
         }
-//        setState(LifecycleState.STARTING);
-//        this.running = true;
-//        accepterTread = new Thread(acceptor);
-//        accepterTread.start();
     }
 
     @Override
