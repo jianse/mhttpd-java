@@ -13,4 +13,12 @@ public class RequestUtil {
         String docBase = request.getContext().getDocBase();
         return Paths.get(docBase, relativize.toString());
     }
+
+    public static boolean isCGI(Request request){
+        return request.getContext().getType().equals("cgi");
+    }
+
+    public static boolean isStatic(Request request){
+        return request.getContext().getType().equals("static");
+    }
 }
