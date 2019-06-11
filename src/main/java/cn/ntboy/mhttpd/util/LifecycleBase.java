@@ -3,8 +3,12 @@ package cn.ntboy.mhttpd.util;
 import cn.ntboy.mhttpd.Lifecycle;
 import cn.ntboy.mhttpd.LifecycleException;
 import cn.ntboy.mhttpd.LifecycleState;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public abstract class LifecycleBase implements Lifecycle{
+
+    Logger logger = LogManager.getLogger(LifecycleBase.class);
 
     private volatile LifecycleState state = LifecycleState.NEW;
 
@@ -54,6 +58,9 @@ public abstract class LifecycleBase implements Lifecycle{
                 setStateInternal(LifecycleState.STARTED, false);
             }
         } catch (Throwable t) {
+
+            logger.error(t);
+            t.printStackTrace();
             throw new LifecycleException(t);
         }
 
