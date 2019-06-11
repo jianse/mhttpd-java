@@ -25,13 +25,14 @@ public class RequestUtil {
 
     public static String[] createCGIEnv(Request request){
         ArrayList<String> list = new ArrayList<>();
-        list.add("SERVER_NAME=");
+        list.add("SERVER_NAME=mhttpd");
         list.add("SERVER_PROTOCOL="+request.getProtocol());
         list.add("REQUEST_METHOD="+request.getMethod());
         setEnvWithCheck(list, request.getUserAgent(), "HTTP_USER_AGENT=");
         setEnvWithCheck(list,request.getQueryString(),"QUERY_STRING=");
         setEnvWithCheck(list, request.getContentType(), "CONTENT_TYPE=");
         setEnvWithCheck(list,request.getContentLength(),"CONTENT_LENGTH=");
+        setEnvWithCheck(list,request.getReferer(),"HTTP_REFERER=");
         return list.toArray(new String[0]);
     }
 

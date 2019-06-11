@@ -11,10 +11,8 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.Socket;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -119,32 +117,44 @@ public class RequestParser extends LifecycleBase implements Runnable {
 
     protected void configSocketAndProcess(SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
-        ByteBuffer buf = ByteBuffer.allocate(100);
-        StringBuilder sb = new StringBuilder();
+        Socket socket = socketChannel.socket();
+        InputStream stream=null;
         try {
-            int len;
-            do {
-                buf.clear();
-                len = socketChannel.read(buf);
-                if (len == -1) {
-                    //发送端主动关闭了连接 我们也关闭连接就行了
-                    socketChannel.close();
-                    return;
-                }
-                buf.limit(len);
-                buf.rewind();
-                CharBuffer decode = defaultCharset.decode(buf);
-                sb.append(decode, 0, decode.length());
-            } while (len == buf.capacity());
+            stream = socket.getInputStream();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        writeLog(sb.toString());
-        int reqline = sb.indexOf("\r\n");
-
-        this.parseRequestLine(sb.substring(0, reqline));
-        int iheaderEnd = sb.indexOf("\r\n\r\n");
-        this.parseRequestHeaders(sb.substring(reqline + 2, iheaderEnd));
+        if(stream!=null){
+            InputStreamReader iToR = new InputStreamReader(stream);
+            BufferedReader reader = new BufferedReader(iToR);
+            try {
+                String line =reader.readLine();
+                if(line==null){
+                    //请求方主动关闭我们也关闭
+                    return;
+                }
+                parseRequestLine(line);
+                while (!(line=reader.readLine()).isBlank()){
+                    setHeader(line);
+                }
+                if(request.getMethod().equals("POST")){
+                    //解析请求体
+                    //todo:限制请求体的最大长度 预防DDoS攻击
+                    if(request.getContentLength()!=null){
+                        Integer length = Integer.valueOf(request.getContentLength());
+                        System.out.println(length);
+                        char[] body=new char[length];
+                        int len=0;
+                        while (len<length) {
+                            len += reader.read(body, len, length);
+                        }
+                        request.setRequestBody(StringUtils.Chars2Bytes(body));
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         logger.debug(request.getMethod()+" "+request.getPath());
         request.setContext(endpoint.getProtocolHandler().getConnector().getService().getContexts().getContext(request.getPath()));
         Processor processor = new Processor();
@@ -169,44 +179,48 @@ public class RequestParser extends LifecycleBase implements Runnable {
 
         try {
             socketChannel.shutdownOutput();
-//            System.out.println(System.currentTimeMillis());
             socketChannel.close();
-//            System.out.println(System.currentTimeMillis());
         } catch (IOException e) {
             //IGNORE
         }
     }
 
     private void writeToSocket() throws IOException {
-//        System.out.println(response);
-//        System.out.println(System.currentTimeMillis());
-        this.socketChannel.write(ByteBuffer.wrap(this.response.getResponseHeader().getBytes()));
-        this.socketChannel.write(ByteBuffer.wrap(nl));
+        Socket socket = socketChannel.socket();
+        OutputStream os = socket.getOutputStream();
+        os.write(this.response.getResponseHeader().getBytes());
+        os.write(nl);
+
         this.response.getHeader().forEach((k, v) -> {
             try {
-                this.socketChannel.write(ByteBuffer.wrap(((String) k).getBytes()));
-                this.socketChannel.write(ByteBuffer.wrap(": ".getBytes()));
-                this.socketChannel.write(ByteBuffer.wrap(((String) v).getBytes()));
-                this.socketChannel.write(ByteBuffer.wrap(nl));
+                os.write(((String)k).getBytes());
+                System.out.println(k);
+                System.out.println(v);
+                os.write(": ".getBytes());
+                os.write(((String)v).getBytes());
+                os.write(nl);
             } catch (IOException e) {
                 e.printStackTrace();
                 //todo log or throw
             }
 
         });
-        this.socketChannel.write(ByteBuffer.wrap(nl));
-        this.socketChannel.write(ByteBuffer.wrap(this.response.getContent()));
-//        System.out.println(System.currentTimeMillis());
+        os.write(nl);
+        os.write(this.response.getContent());
     }
 
     private void parseRequestHeaders(String headerStr) {
         String[] headerArray = headerStr.split("\r\n");
         for (String header : headerArray) {
-            int index = header.indexOf(':');
-            String key = header.substring(0, index).trim();
-            String value = header.substring(index + 1).trim();
-            this.request.setHeader(key, value);
+            setHeader(header);
         }
+    }
+
+    private void setHeader(String header) {
+        int index = header.indexOf(':');
+        String key = header.substring(0, index).trim();
+        String value = header.substring(index + 1).trim();
+        this.request.setHeader(key, value);
     }
 
     private void writeLog(String str) {

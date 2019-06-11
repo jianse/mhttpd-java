@@ -8,9 +8,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 public class CGIFilter implements Filter {
-    Logger logger = LogManager.getLogger(CGIFilter.class);
+    private Logger logger = LogManager.getLogger(CGIFilter.class);
     @Override
     public FilterState doInRequest(Request request, Response response) throws IOException {
         logger.debug("cgi");
@@ -19,12 +20,25 @@ public class CGIFilter implements Filter {
             Runtime runtime = Runtime.getRuntime();
             String[] envp=RequestUtil.createCGIEnv(request);
             Process process = runtime.exec(path.toString(), envp, path.getParent().toFile());
+
+            if(request.getMethod().equals("POST")&&request.getRequestBody()!=null){
+
+                OutputStream os = process.getOutputStream();
+                os.write(request.getRequestBody());
+                os.flush();
+                os.close();
+            }
+
+            try {
+                process.waitFor(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             InputStream stream = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 
             String line = reader.readLine();
-//            System.out.println(line);
-            if(line!=null && line.contains("Content-Type")){
+            if(line!=null && line.toLowerCase().contains("content-type")){
                 String[] split = line.split(":");
                 response.setContentType(split[1].trim());
             }else {

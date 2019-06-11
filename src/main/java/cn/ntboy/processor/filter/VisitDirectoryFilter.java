@@ -14,7 +14,6 @@ public class VisitDirectoryFilter implements Filter {
     @Override
     public FilterState doInRequest(Request request, Response response) {
         if(request.getPath().endsWith("/")){
-
             return FilterState.CONTINUE;
         }
 
@@ -22,6 +21,7 @@ public class VisitDirectoryFilter implements Filter {
 
         if(Files.isDirectory(file)){
             response.sendRedirect(request.getPath()+"/");
+            System.out.println(response);
             return FilterState.BREAK;
         }
         return FilterState.CONTINUE;
