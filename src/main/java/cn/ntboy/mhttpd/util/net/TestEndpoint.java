@@ -13,8 +13,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -30,6 +29,8 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
     private Executor executor = null;
     private InetAddress address;
 
+    private Poller poller = null;
+
     @Override
     protected void bind() throws Exception {
         serverSock=ServerSocketChannel.open();
@@ -43,12 +44,27 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
         return serverSock.accept();
     }
 
+    private Selector selector = null;
+
     @Override
     public boolean setSocketOptions(SocketChannel socket) {
-        RequestParser requestParser = new RequestParser();
-        requestParser.setSocketChannel(socket);
-        requestParser.setEndpoint(this);
-        executor.execute(requestParser);
+        try {
+            socket.configureBlocking(false);
+        } catch (IOException e) {
+            logger.error("configBlocking error",e);
+            e.printStackTrace();
+        }
+        try {
+            socket.register(poller.getSelector(), SelectionKey.OP_READ);
+        } catch (ClosedChannelException e) {
+            logger.error("reg to selector error",e);
+            e.printStackTrace();
+        }
+//todo:move this code to another place
+//        RequestParser requestParser = new RequestParser();
+//        requestParser.setSocketChannel(socket);
+//        requestParser.setEndpoint(this);
+//        executor.execute(requestParser);
 
         return true;
     }
@@ -78,6 +94,9 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
             throw  new LifecycleException(e);
 //            e.printStackTrace();
         }
+
+        poller =new Poller();
+        poller.setEndpoint(this);
     }
 
     @Override
@@ -90,6 +109,8 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
             if(getExecutor()==null){
                 createExecutor();
             }
+
+            poller.start();
 
             startAcceptorThreads();
         }
@@ -111,7 +132,6 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
         for(int i=0;i<count;i++){
             Acceptor<SocketChannel> acceptor = new Acceptor<>(this);
             String name = "Acceptor"+i;
-
             Thread t = new Thread(acceptor,name);
             t.start();
         }
@@ -157,4 +177,9 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
         serverSock = null;
     }
 
+    public void process(SocketChannel channel) {
+        RequestParser requestParser = new RequestParser(channel);
+        requestParser.setEndpoint(this);
+        executor.execute(requestParser);
+    }
 }

@@ -18,7 +18,7 @@ import java.util.List;
 public abstract class AbstractEndpoint<S,U> extends LifecycleBase {
     private volatile LimitLatch connectionLimitLatch =null;
     @Getter
-    private int maxConnections=10000;
+    private int maxConnections=-1;
     protected volatile boolean running =false;
 
     protected List<Acceptor<U>> acceptors;

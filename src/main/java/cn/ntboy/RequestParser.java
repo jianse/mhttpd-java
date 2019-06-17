@@ -21,7 +21,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class RequestParser extends LifecycleBase implements Runnable {
+public class RequestParser implements Runnable {
 
     private static final Logger logger = LogManager.getLogger(RequestParser.class);
     private byte[] nl = {0x0d, 0x0a};
@@ -46,6 +46,10 @@ public class RequestParser extends LifecycleBase implements Runnable {
 
     private String[] protocols = {"HTTP/1.0", "HTTP/1.1", "HTTP/2.0"};
     private String[] methods = {"GET", "POST", "PUT", "DELETE", "CONNECT", "HEAD", "TRACE", "OPTIONS"};
+
+    public RequestParser(SocketChannel socketChannel) {
+        this.socketChannel = socketChannel;
+    }
 
     public void parseRequestLine(String requestLine) {
         String[] s = requestLine.split(" ");
@@ -115,8 +119,7 @@ public class RequestParser extends LifecycleBase implements Runnable {
         return false;
     }
 
-    protected void configSocketAndProcess(SocketChannel socketChannel) {
-        this.socketChannel = socketChannel;
+    protected void configSocketAndProcess() {
         Socket socket = socketChannel.socket();
         InputStream stream=null;
         try {
@@ -238,43 +241,7 @@ public class RequestParser extends LifecycleBase implements Runnable {
 
     @Override
     public void run() {
-        try {
-            init();
-            start();
-            stop();
-            destroy();
-        } catch (LifecycleException e) {
-            //todo:do some log
-        }
-
-
-    }
-
-    @Override
-    protected void initInternal() throws LifecycleException {
-
-        if (request == null) {
-            request = new HttpRequest();
-        }
-        if (response == null) {
-            response = new HttpResponse();
-        }
-    }
-
-    @Override
-    protected void startInternal() throws LifecycleException {
-        setState(LifecycleState.STARTING);
-        configSocketAndProcess(socketChannel);
-    }
-
-    @Override
-    protected void stopInternal() throws LifecycleException {
-        setState(LifecycleState.STOPPING);
-    }
-
-    @Override
-    protected void destroyInternal() throws LifecycleException {
-
+        configSocketAndProcess();
     }
 
     @Setter
