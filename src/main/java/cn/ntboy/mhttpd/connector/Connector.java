@@ -4,6 +4,7 @@ import cn.ntboy.mhttpd.Executor;
 import cn.ntboy.mhttpd.LifecycleException;
 import cn.ntboy.mhttpd.LifecycleState;
 import cn.ntboy.mhttpd.Service;
+import cn.ntboy.mhttpd.core.StandardThreadExecutor;
 import cn.ntboy.mhttpd.protocol.ProtocolHandler;
 import cn.ntboy.mhttpd.util.LifecycleBase;
 import cn.ntboy.mhttpd.util.net.Acceptor;
@@ -22,6 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class Connector extends LifecycleBase {
 
@@ -155,7 +157,7 @@ public class Connector extends LifecycleBase {
     @Override
     protected void initInternal() throws LifecycleException {
         logger.debug("initializing connector...");
-        try {
+        try{
             protocolHandler.init();
         } catch (Exception e) {
             throw new LifecycleException(sm.getString("connector.protocolHandlerInitializationFailed"), e);

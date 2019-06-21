@@ -170,12 +170,17 @@ public class StandardService extends LifecycleBase implements Service{
 
     @Override
     protected void startInternal() throws LifecycleException {
-        setState(LifecycleState.STARTING);
+
         synchronized (connectorsLock) {
+            for (Executor executor:executors){
+                executor.start();
+            }
+
             for (Connector connector : connectors) {
                 connector.start();
             }
         }
+        setState(LifecycleState.STARTING);
     }
 
     @Override

@@ -9,17 +9,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 public class ContentTypeFilter implements Filter {
-    @Override
-    public FilterState doInRequest(Request request, Response response) throws IOException {
-        return FilterState.CONTINUE;
-    }
 
     @Override
-    public FilterState doInResponse(Request request, Response response) throws IOException {
-        if(RequestUtil.isStatic(request)&&!response.isError()){
-            String type = Files.probeContentType(RequestUtil.getVisitPath(request));
-            response.setContentType(type);
+    public void doFilter(Request req, Response res, FilterChain chain) throws Exception {
+        chain.doFilter(req,res);
+        if(res.isError()){
+            res.setContentType("text/html");
+        }else {
+            String type = Files.probeContentType(RequestUtil.getVisitPath(req));
+//            System.out.println(type);
+            res.setContentType(type);
         }
-        return FilterState.CONTINUE;
+
     }
 }

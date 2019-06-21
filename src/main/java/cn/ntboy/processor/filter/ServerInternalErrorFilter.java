@@ -6,14 +6,14 @@ import cn.ntboy.mhttpd.Response;
 import java.io.IOException;
 
 public class ServerInternalErrorFilter implements Filter {
-    @Override
-    public FilterState doInRequest(Request request, Response response) throws IOException {
-        return FilterState.CONTINUE;
-    }
 
     @Override
-    public FilterState doInResponse(Request request, Response response) throws IOException {
-
-        return FilterState.CONTINUE;
+    public void doFilter(Request req, Response res, FilterChain chain) throws Exception {
+        try{
+            chain.doFilter(req,res);
+        }catch (Throwable t){
+            res.sendError(400);
+            res.getOutputStream().write(t.toString().getBytes());
+        }
     }
 }

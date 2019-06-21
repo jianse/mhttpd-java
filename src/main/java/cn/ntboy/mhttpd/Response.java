@@ -1,6 +1,7 @@
 package cn.ntboy.mhttpd;
 
 import cn.ntboy.mhttpd.protocol.http.HTTPStatusCode;
+import cn.ntboy.processor.filter.FilterState;
 
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -13,8 +14,6 @@ public interface Response{
     void sendError(HTTPStatusCode code);
 
     OutputStream getOutputStream();
-
-    String getResponseHeader();
 
     byte[] getContent();
 
@@ -33,4 +32,17 @@ public interface Response{
     Charset getCharset();
 
     boolean isError();
+
+    void setRequest(Request request);
+
+    /**
+     * write the response to the client
+     */
+    void doResponse();
+
+    boolean isKeepAliveSet();
+
+    void setKeepAlive(boolean b);
+
+    boolean isKeepAlive();
 }

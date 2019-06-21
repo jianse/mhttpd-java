@@ -1,10 +1,10 @@
 package cn.ntboy.mhttpd.util.net;
 
-import cn.ntboy.HTTP11Protocol;
-import cn.ntboy.RequestParser;
-import cn.ntboy.mhttpd.LifecycleException;
-import cn.ntboy.mhttpd.LifecycleState;
+import cn.ntboy.mhttpd.*;
+import cn.ntboy.mhttpd.core.StandardThreadExecutor;
 import cn.ntboy.mhttpd.protocol.ProtocolHandler;
+import cn.ntboy.mhttpd.protocol.http.HttpRequest;
+import cn.ntboy.processor.Processor;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> {
     private static final Logger logger = LogManager.getLogger(TestEndpoint.class);
@@ -24,6 +22,7 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
 
     private ServerSocketChannel serverSock=null;
     private boolean paused = true;
+
     @Setter
     @Getter
     private Executor executor = null;
@@ -44,8 +43,6 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
         return serverSock.accept();
     }
 
-    private Selector selector = null;
-
     @Override
     public boolean setSocketOptions(SocketChannel socket) {
         try {
@@ -56,6 +53,7 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
         }
         try {
             socket.register(poller.getSelector(), SelectionKey.OP_READ);
+
         } catch (ClosedChannelException e) {
             logger.error("reg to selector error",e);
             e.printStackTrace();
@@ -95,6 +93,10 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
 //            e.printStackTrace();
         }
 
+        if(executor==null){
+            executor=new StandardThreadExecutor();
+        }
+
         poller =new Poller();
         poller.setEndpoint(this);
     }
@@ -105,10 +107,6 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
         if(!running) {
             running =true;
             paused =false;
-
-            if(getExecutor()==null){
-                createExecutor();
-            }
 
             poller.start();
 
@@ -144,7 +142,7 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
 
     private void createExecutor() {
         //todo: init executor
-        executor = Executors.newFixedThreadPool(10);
+        //executor = Executors.newFixedThreadPool(10);
     }
 
     private int getAcceptCount() {
@@ -177,9 +175,10 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
         serverSock = null;
     }
 
-    public void process(SocketChannel channel) {
-        RequestParser requestParser = new RequestParser(channel);
-        requestParser.setEndpoint(this);
-        executor.execute(requestParser);
+
+    public void process(SelectionKey key){
+
+        logger.debug("ex  Name:{}",executor.getName());
+        executor.execute(new Processor(key,getProtocolHandler().getConnector().getService().getContexts()));
     }
 }

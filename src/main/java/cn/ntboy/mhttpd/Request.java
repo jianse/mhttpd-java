@@ -1,5 +1,6 @@
 package cn.ntboy.mhttpd;
 
+import java.nio.channels.SelectionKey;
 import java.nio.charset.Charset;
 
 public interface Request {
@@ -96,4 +97,16 @@ public interface Request {
     byte[] getRequestBody();
 
     void setRequestBody(byte[] body);
+
+    void setSelectionKey(SelectionKey key);
+
+    SelectionKey getSelectionKey();
+
+    String getRequestString();
+
+    void setResponse(Response response);
+
+    Response getResponse();
+
+    boolean isKeepAlive();
 }

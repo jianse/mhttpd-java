@@ -4,8 +4,10 @@ import cn.ntboy.mhttpd.Request;
 import cn.ntboy.mhttpd.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
-public interface Filter {
+public interface FilterChain{
 
-    void doFilter(Request req,Response res,FilterChain chain) throws Exception;
+    void doFilter(Request request,Response response)throws Exception;
+
 }

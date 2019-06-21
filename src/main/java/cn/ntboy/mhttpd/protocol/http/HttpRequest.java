@@ -1,17 +1,24 @@
-package cn.ntboy.mhttpd.core;
+package cn.ntboy.mhttpd.protocol.http;
 
+import cn.ntboy.mhttpd.Response;
+import cn.ntboy.mhttpd.protocol.http.RequestParserTest;
 import cn.ntboy.mhttpd.Context;
 import cn.ntboy.mhttpd.Request;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-@ToString
+@ToString(exclude = "response")
 public class HttpRequest implements Request {
 
     private Charset defaultCharset= StandardCharsets.UTF_8;
@@ -37,6 +44,19 @@ public class HttpRequest implements Request {
     private Map<String,String> header= new HashMap<>();
 
     private Map<String,String> parameter= new HashMap<>();
+
+    @Getter
+    @Setter
+    private String requestString;
+
+    public HttpRequest(StringBuilder builder) {
+        System.out.println(builder.toString());
+        requestString =builder.toString();
+        RequestParserTest parser = new RequestParserTest();
+        parser.parse(this);
+        Response response = new HttpResponse(this);
+        this.setResponse(response);
+    }
 
     @Override
     public String getParameter(String key) {
@@ -99,7 +119,18 @@ public class HttpRequest implements Request {
         return header.get("Content-Length");
     }
 
+    @Override
+    public boolean isKeepAlive() {
+        return "keep-alive".equals(header.get("Connection"));
+    }
 
+    @Getter
+    @Setter
+    Response response=null;
+
+    @Setter
+    @Getter
+    SelectionKey selectionKey =null;
 
     @Getter
     @Setter

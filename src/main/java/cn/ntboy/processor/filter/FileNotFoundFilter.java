@@ -15,17 +15,6 @@ public class FileNotFoundFilter implements Filter {
 
     private String notFindPath="www/html/404.html";
 
-    @Override
-    public FilterState doInRequest(Request request, Response response) throws IOException {
-        Path path = RequestUtil.getVisitPath(request);
-        if(!Files.exists(path)){
-            response.sendError(404);
-            write404Page2Res(response);
-            return FilterState.BREAK;
-        }
-        return FilterState.CONTINUE;
-    }
-
     private void write404Page2Res(Response response) throws IOException {
         Path ntf = Paths.get(Bootstrap.getMhttpdBaseFile().getPath(), notFindPath);
         System.out.println(ntf);
@@ -33,10 +22,16 @@ public class FileNotFoundFilter implements Filter {
     }
 
     @Override
-    public FilterState doInResponse(Request request, Response response) throws IOException {
-        if(response.getErrorCode()==404){
-            write404Page2Res(response);
+    public void doFilter(Request req, Response res, FilterChain chain) throws Exception {
+        Path path = RequestUtil.getVisitPath(req);
+        if(!Files.exists(path)){
+            res.sendError(404);
+            write404Page2Res(res);
+            return;
         }
-        return FilterState.CONTINUE;
+        chain.doFilter(req,res);
+        if(res.getErrorCode()==404){
+            write404Page2Res(res);
+        }
     }
 }

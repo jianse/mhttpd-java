@@ -1,12 +1,9 @@
 package cn.ntboy;
 
-import cn.ntboy.mhttpd.LifecycleException;
-import cn.ntboy.mhttpd.LifecycleState;
-import cn.ntboy.mhttpd.Request;
-import cn.ntboy.mhttpd.Response;
+import cn.ntboy.mhttpd.*;
 import cn.ntboy.mhttpd.connector.Connector;
-import cn.ntboy.mhttpd.core.HttpRequest;
-import cn.ntboy.mhttpd.core.HttpResponse;
+import cn.ntboy.mhttpd.protocol.http.HttpRequest;
+import cn.ntboy.mhttpd.protocol.http.HttpResponse;
 import cn.ntboy.mhttpd.protocol.UpgradeProtocol;
 import cn.ntboy.mhttpd.util.LifecycleBase;
 import cn.ntboy.mhttpd.util.net.SSLHostConfig;
@@ -27,7 +24,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executor;
+
 
 public class HTTP11Protocol extends LifecycleBase implements cn.ntboy.mhttpd.protocol.ProtocolHandler {
 
@@ -161,15 +158,15 @@ public class HTTP11Protocol extends LifecycleBase implements cn.ntboy.mhttpd.pro
 
         this.parseRequestHeaders(sb.substring(reqline + 2, iheaderEnd));
 
-        Processor processor = new Processor();
+//        Processor processor = new Processor();
         try {
-            processor.process(request, response);
+//            processor.process(request, response);
         } catch (Exception e) {
             response.sendError(500);
         }
 
         try {
-            this.socketChannel.write(ByteBuffer.wrap(this.response.getResponseHeader().getBytes()));
+//            this.socketChannel.write(ByteBuffer.wrap(this.response.getResponseHeader().getBytes()));
             this.socketChannel.write(ByteBuffer.wrap(nl));
             this.response.getHeader().forEach((k, v) -> {
                 try {
@@ -238,12 +235,12 @@ public class HTTP11Protocol extends LifecycleBase implements cn.ntboy.mhttpd.pro
 
     @Override
     public Executor getExecutor() {
-        return executor;
+        return endpoint.getExecutor();
     }
 
     @Override
     public void setExecutor(Executor executor) {
-        this.executor = executor;
+        endpoint.setExecutor(executor);
     }
 
     @Override
@@ -269,15 +266,9 @@ public class HTTP11Protocol extends LifecycleBase implements cn.ntboy.mhttpd.pro
     @Override
     protected void initInternal() throws LifecycleException {
 
-        if (request == null) {
-            request = new HttpRequest();
-        }
-        if (response == null) {
-            response = new HttpResponse();
-        }
-
         if(endpoint==null){
             endpoint = new TestEndpoint();
+            endpoint.setExecutor(getExecutor());
         }
         endpoint.setProtocolHandler(this);
         try{
@@ -290,13 +281,14 @@ public class HTTP11Protocol extends LifecycleBase implements cn.ntboy.mhttpd.pro
 
     @Override
     protected void startInternal() throws LifecycleException {
-        setState(LifecycleState.STARTING);
         endpoint.start();
+        setState(LifecycleState.STARTING);
     }
 
     @Override
     protected void stopInternal() throws LifecycleException {
-
+        endpoint.stop();
+        setState(LifecycleState.STOPPING);
     }
 
     @Override

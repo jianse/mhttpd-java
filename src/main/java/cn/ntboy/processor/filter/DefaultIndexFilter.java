@@ -14,40 +14,35 @@ import java.nio.file.Path;
 
 public class DefaultIndexFilter implements Filter{
 
-    Logger logger = LogManager.getLogger(DefaultIndexFilter.class);
+    private Logger logger = LogManager.getLogger(DefaultIndexFilter.class);
+
 
     @Override
-    public FilterState doInRequest(Request request, Response response) throws IOException {
-        if(request.getPath().endsWith("/")){
-            logger.debug("start default index filter:"+System.currentTimeMillis());
-            Path path = RequestUtil.getVisitPath(request);
+    public void doFilter(Request req, Response res, FilterChain chain) throws Exception {
+        if(req.getPath().endsWith("/")){
+            Path path = RequestUtil.getVisitPath(req);
             DirectoryStream<Path> stream = null;
             try {
-                stream = Files.newDirectoryStream(path, request.getContext().getDefaultIndex());
+                stream = Files.newDirectoryStream(path, req.getContext().getDefaultIndex());
             } catch (IOException e) {
-                OutputStream os = response.getOutputStream();
+                OutputStream os = res.getOutputStream();
                 os.write(e.toString().getBytes());
-                response.sendError(500);
+                res.sendError(500);
             }
             if (stream != null) {
                 for (Path item : stream) {
                     if(!Files.isDirectory(item)){
-                        String p = request.getPath() + item.getName(item.getNameCount()-1);
-                        request.setPath(p);
-                        return FilterState.CONTINUE;
+                        String p = req.getPath() + item.getName(item.getNameCount()-1);
+                        req.setPath(p);
+                        chain.doFilter(req,res);
+                        return;
                     }
                 }
             }
 
-            logger.debug("before 404 default index filter:"+System.currentTimeMillis());
-            response.sendError(404);
-            return FilterState.BREAK;
+            res.sendError(404);
+            return;
         }
-        return FilterState.CONTINUE;
-    }
-
-    @Override
-    public FilterState doInResponse(Request request, Response response) throws IOException {
-        return FilterState.CONTINUE;
+        chain.doFilter(req,res);
     }
 }

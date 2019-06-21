@@ -11,25 +11,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class VisitDirectoryFilter implements Filter {
-    @Override
-    public FilterState doInRequest(Request request, Response response) {
-        if(request.getPath().endsWith("/")){
-            return FilterState.CONTINUE;
-        }
-
-        Path file = RequestUtil.getVisitPath(request);
-
-        if(Files.isDirectory(file)){
-            response.sendRedirect(request.getPath()+"/");
-            System.out.println(response);
-            return FilterState.BREAK;
-        }
-        return FilterState.CONTINUE;
-    }
 
     @Override
-    public FilterState doInResponse(Request request, Response response) throws IOException {
-        return FilterState.CONTINUE;
-    }
+    public void doFilter(Request req, Response res, FilterChain chain) throws Exception {
+        if(!req.getPath().equals("/")) {
+            Path file = RequestUtil.getVisitPath(req);
 
+            if (Files.isDirectory(file)) {
+                res.sendRedirect(req.getPath() + "/");
+//                System.out.println(res);
+                return;
+            }
+        }
+        chain.doFilter(req,res);
+    }
 }

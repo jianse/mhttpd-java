@@ -12,19 +12,20 @@ import java.util.concurrent.TimeUnit;
 
 public class CGIFilter implements Filter {
     private Logger logger = LogManager.getLogger(CGIFilter.class);
+
     @Override
-    public FilterState doInRequest(Request request, Response response) throws IOException {
+    public void doFilter(Request req, Response res, FilterChain chain) throws Exception {
         logger.debug("cgi");
-        if(RequestUtil.isCGI(request)){
-            Path path = RequestUtil.getVisitPath(request);
+        if(RequestUtil.isCGI(req)){
+            Path path = RequestUtil.getVisitPath(req);
             Runtime runtime = Runtime.getRuntime();
-            String[] envp=RequestUtil.createCGIEnv(request);
+            String[] envp=RequestUtil.createCGIEnv(req);
             Process process = runtime.exec(path.toString(), envp, path.getParent().toFile());
 
-            if(request.getMethod().equals("POST")&&request.getRequestBody()!=null){
+            if(req.getMethod().equals("POST")&&req.getRequestBody()!=null){
 
                 OutputStream os = process.getOutputStream();
-                os.write(request.getRequestBody());
+                os.write(req.getRequestBody());
                 os.flush();
                 os.close();
             }
@@ -40,20 +41,15 @@ public class CGIFilter implements Filter {
             String line = reader.readLine();
             if(line!=null && line.toLowerCase().contains("content-type")){
                 String[] split = line.split(":");
-                response.setContentType(split[1].trim());
+                res.setContentType(split[1].trim());
             }else {
                 throw new RuntimeException("cgi have no [Content-Type] header");
             }
 
-            OutputStreamWriter writer = new OutputStreamWriter(response.getOutputStream(),response.getCharset());
+            OutputStreamWriter writer = new OutputStreamWriter(res.getOutputStream(),res.getCharset());
             long l = reader.transferTo(writer);
             writer.flush();
         }
-        return FilterState.BREAK;
-    }
-
-    @Override
-    public FilterState doInResponse(Request request, Response response) throws IOException {
-        return FilterState.CONTINUE;
+        chain.doFilter(req,res);
     }
 }

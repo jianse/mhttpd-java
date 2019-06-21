@@ -8,14 +8,10 @@ import cn.ntboy.processor.filter.FilterState;
 import java.io.IOException;
 
 public class ContentLengthFilter implements Filter {
-    @Override
-    public FilterState doInRequest(Request request, Response response) throws IOException {
-        return FilterState.CONTINUE;
-    }
 
     @Override
-    public FilterState doInResponse(Request request, Response response) throws IOException {
-        response.setContentLength();
-        return FilterState.CONTINUE;
+    public void doFilter(Request req, Response res, FilterChain chain) throws Exception {
+        chain.doFilter(req,res);
+        res.setContentLength();
     }
 }
