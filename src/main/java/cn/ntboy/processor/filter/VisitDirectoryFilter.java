@@ -14,7 +14,7 @@ public class VisitDirectoryFilter implements Filter {
 
     @Override
     public void doFilter(Request req, Response res, FilterChain chain) throws Exception {
-        if(!req.getPath().equals("/")) {
+        if(!req.getPath().endsWith("/")) {
             Path file = RequestUtil.getVisitPath(req);
 
             if (Files.isDirectory(file)) {
