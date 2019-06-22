@@ -135,6 +135,7 @@ public class HttpResponse implements cn.ntboy.mhttpd.Response {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        request.getSelectionKey().interestOps(SelectionKey.OP_READ);
 
     }
 
@@ -155,6 +156,16 @@ public class HttpResponse implements cn.ntboy.mhttpd.Response {
     @Override
     public boolean isKeepAlive() {
         return "keep-alive".equals(header.get("Connection"));
+    }
+
+    @Override
+    public String getContentType() {
+        return header.get("Content-Type");
+    }
+
+    @Override
+    public void setHeader(String key, String value) {
+        header.put(key,value);
     }
 
     public void setKeepAliveTimeOut(int timeout) {

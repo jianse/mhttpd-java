@@ -2,6 +2,7 @@ package cn.ntboy.processor.filter;
 
 import cn.ntboy.mhttpd.Request;
 import cn.ntboy.mhttpd.Response;
+import cn.ntboy.mhttpd.util.net.Poller;
 
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
@@ -20,9 +21,9 @@ public class CloseChannelFilter implements Filter {
         if(!res.isKeepAlive()){
             //不支持长连接
             SelectionKey key = req.getSelectionKey();
-//            key.cancel();
-//            SocketChannel channel =(SocketChannel) key.channel();
-//            channel.close();
+
+            Poller poller = (Poller)key.attachment();
+            poller.cancelledKey(key);
         }
     }
 }

@@ -4,13 +4,17 @@ import cn.ntboy.mhttpd.Executor;
 import cn.ntboy.mhttpd.LifecycleException;
 import cn.ntboy.mhttpd.LifecycleState;
 import cn.ntboy.mhttpd.util.LifecycleBase;
+import cn.ntboy.mhttpd.util.threads.ThreadPoolExecutor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @ToString
@@ -38,11 +42,41 @@ public class StandardThreadExecutor extends LifecycleBase implements Executor{
     @Setter
     private String namePrefix="thread-worker-";
 
-    class TaskQueue{
+    //自定义人物队列，以满足应对连接时的策略
+    class TaskQueue extends LinkedBlockingQueue<Runnable> {
+        @Setter
+        private transient volatile ThreadPoolExecutor parent=null;
 
+        public TaskQueue(int capacity) {
+            super(capacity);
+        }
+
+        @Override
+        public boolean offer(Runnable runnable) {
+            //不做任何检查
+            if(parent==null){
+                return super.offer(runnable);
+            }
+            //线程池已经不能再创建线程，添加到队列
+            if(parent.getPoolSize()==parent.getMaximumPoolSize()){
+                return super.offer(runnable);
+            }
+
+            //还有空闲线程，将任务加入队列
+            if(parent.getSubmittedCount()<=(parent.getPoolSize())){
+                return super.offer(runnable);
+            }
+
+            //还能创建线程
+            if(parent.getPoolSize()<parent.getMaximumPoolSize()){
+                return false;
+            }
+
+            return super.offer(runnable);
+        }
     }
 
-    private ArrayBlockingQueue<Runnable> queue=new ArrayBlockingQueue<>(100);
+    private TaskQueue queue=new TaskQueue(512);
     private ThreadFactory threadFactory = new NameThreadFactory();
 
     class NameThreadFactory implements ThreadFactory{
@@ -91,7 +125,7 @@ public class StandardThreadExecutor extends LifecycleBase implements Executor{
 
     @Override
     public void execute(Runnable command) {
-        logger.debug(command);
+//        logger.debug(command);
         executor.execute(command);
     }
 }

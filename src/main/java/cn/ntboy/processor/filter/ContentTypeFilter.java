@@ -13,13 +13,14 @@ public class ContentTypeFilter implements Filter {
     @Override
     public void doFilter(Request req, Response res, FilterChain chain) throws Exception {
         chain.doFilter(req,res);
-        if(res.isError()){
-            res.setContentType("text/html");
-        }else {
-            String type = Files.probeContentType(RequestUtil.getVisitPath(req));
+        if(RequestUtil.isStatic(req)){
+            if(res.isError()){
+                res.setContentType("text/html");
+            }else {
+                String type = Files.probeContentType(RequestUtil.getVisitPath(req));
 //            System.out.println(type);
-            res.setContentType(type);
+                res.setContentType(type);
+            }
         }
-
     }
 }

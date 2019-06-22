@@ -2,6 +2,7 @@ package cn.ntboy.processor.filter;
 
 import cn.ntboy.mhttpd.Request;
 import cn.ntboy.mhttpd.Response;
+import cn.ntboy.mhttpd.protocol.http.HttpResponse;
 import cn.ntboy.processor.RequestUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,18 +38,25 @@ public class CGIFilter implements Filter {
             }
             InputStream stream = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            String line=null;
+            while(!(line=reader.readLine()).isEmpty()){
+//                line = reader.readLine();
+//                System.out.println(line);
 
-            String line = reader.readLine();
-            if(line!=null && line.toLowerCase().contains("content-type")){
                 String[] split = line.split(":");
-                res.setContentType(split[1].trim());
-            }else {
-                throw new RuntimeException("cgi have no [Content-Type] header");
+                res.setHeader(split[0].trim(),split[1].trim());
+
             }
+
+            if (res.getContentType() == null||res.getContentType().isEmpty()) {
+                res.setContentType("text/html");
+            }
+
 
             OutputStreamWriter writer = new OutputStreamWriter(res.getOutputStream(),res.getCharset());
             long l = reader.transferTo(writer);
             writer.flush();
+            reader.close();
         }
         chain.doFilter(req,res);
     }

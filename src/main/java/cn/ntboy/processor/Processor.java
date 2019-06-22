@@ -37,24 +37,19 @@ public class Processor implements Runnable {
         this.contexts =contexts;
     }
 
-    private void process(Request request, Response response) throws IOException {
+    private void process(Request request, Response response) {
         try {
             chain.doFilter(request,response);
         } catch (Exception e) {
             //所有异常在这里已经处理完毕没有必要捕获异常了
-            e.printStackTrace();
         }
     }
 
     @Override
     public void run() {
-        try {
-            if(createRequest()){
-                logger.debug("pre process");
-                process(request,response);
-            };
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(createRequest()){
+            logger.debug("pre process");
+            process(request,response);
         }
     }
 
@@ -63,6 +58,7 @@ public class Processor implements Runnable {
             SocketChannel channel = (SocketChannel) key.channel();
             ByteBuffer buffer = ByteBuffer.allocate(1024);
             StringBuilder builder = new StringBuilder();
+//            boolean cancel=false;
             int len=0;
             do{
                 buffer.clear();
@@ -75,6 +71,7 @@ public class Processor implements Runnable {
 //                                System.out.println("line:\n'"+decode.toString()+"'");
                 }else if(len<0){
                     //对端链路关闭
+//                    cancel=true;
                     key.cancel();
                     channel.close();
                 }
@@ -91,8 +88,6 @@ public class Processor implements Runnable {
             e.printStackTrace();
             return false;
         }
-
-
         return false;
     }
 }

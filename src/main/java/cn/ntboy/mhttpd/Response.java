@@ -45,4 +45,8 @@ public interface Response{
     void setKeepAlive(boolean b);
 
     boolean isKeepAlive();
+
+    String getContentType();
+
+    void setHeader(String key, String value);
 }

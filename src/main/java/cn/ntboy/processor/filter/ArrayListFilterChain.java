@@ -13,10 +13,9 @@ public class ArrayListFilterChain implements FilterChain {
     public ArrayListFilterChain() {
         filters.add(new CloseChannelFilter());
         filters.add(new ResponseFilter());
-
-        filters.add(new ServerInternalErrorFilter());
         filters.add(new ContentLengthFilter());
         filters.add(new ContentTypeFilter());
+        filters.add(new ServerInternalErrorFilter());
         filters.add(new FileNotFoundFilter());
         filters.add(new VisitDirectoryFilter());
         filters.add(new DefaultIndexFilter());

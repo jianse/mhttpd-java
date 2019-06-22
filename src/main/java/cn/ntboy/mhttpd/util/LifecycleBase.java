@@ -3,8 +3,11 @@ package cn.ntboy.mhttpd.util;
 import cn.ntboy.mhttpd.Lifecycle;
 import cn.ntboy.mhttpd.LifecycleException;
 import cn.ntboy.mhttpd.LifecycleState;
+import cn.ntboy.mhttpd.util.net.NioSocketWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.nio.channels.SelectionKey;
 
 public abstract class LifecycleBase implements Lifecycle{
 

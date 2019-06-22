@@ -34,7 +34,7 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
     protected void bind() throws Exception {
         serverSock=ServerSocketChannel.open();
         InetSocketAddress addr = new InetSocketAddress(getAddress(), getPort());
-        logger.debug("prepare to bind"+getAddress()+getPort());
+        logger.debug("prepare to bind addr:{} port:{}",getAddress(),getPort());
         serverSock.socket().bind(addr,getAcceptCount());
     }
 
@@ -47,12 +47,15 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
     public boolean setSocketOptions(SocketChannel socket) {
         try {
             socket.configureBlocking(false);
+//            NioChannel channel = new NioChannel();
+//            channel.setIOChannel(socket);
+//            poller.register(channel);
         } catch (IOException e) {
             logger.error("configBlocking error",e);
             e.printStackTrace();
         }
         try {
-            socket.register(poller.getSelector(), SelectionKey.OP_READ);
+            socket.register(poller.getSelector(), SelectionKey.OP_READ,poller);
 
         } catch (ClosedChannelException e) {
             logger.error("reg to selector error",e);
@@ -178,7 +181,9 @@ public class TestEndpoint extends AbstractEndpoint<SocketChannel,SocketChannel> 
 
     public void process(SelectionKey key){
 
-        logger.debug("ex  Name:{}",executor.getName());
+//        logger.debug("ex  Name:{}",executor.getName());
         executor.execute(new Processor(key,getProtocolHandler().getConnector().getService().getContexts()));
     }
+
+
 }

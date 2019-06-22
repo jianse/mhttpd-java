@@ -50,7 +50,7 @@ public class HttpRequest implements Request {
     private String requestString;
 
     public HttpRequest(StringBuilder builder) {
-        System.out.println(builder.toString());
+//        System.out.println(builder.toString());
         requestString =builder.toString();
         RequestParserTest parser = new RequestParserTest();
         parser.parse(this);

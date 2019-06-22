@@ -13,7 +13,7 @@
   <Service name="Catalina">
 
     <!--The connectors can use a shared executor, you can define one or more named thread pools-->
-    <Executor name="testThreadPool" namePrefix="common-worker-pool-"
+    <Executor name="ThreadPool1" namePrefix="common-pool-"
         maxThreads="200" minSpareThreads="25"/>
 
 
@@ -24,7 +24,7 @@
          APR (HTTP/AJP) Connector: /docs/apr.html
          Define a non-SSL/TLS HTTP/1.1 Connector on port 8080
     -->
-    <Connector executor="testThreadPool" port="8080" protocol="HTTP/1.1"
+    <Connector executor="ThreadPool1" port="8080" protocol="HTTP/1.1"
                connectionTimeout="20000"
                redirectPort="443" />
     <!-- A "Connector" using the shared thread pool-->
