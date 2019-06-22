@@ -96,6 +96,22 @@
                 <version>3.1.0</version>
                 <executions>
                     <execution>
+                        <id>copy-bin</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/dist/mhttpd/bin</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/resources/bin</directory>
+
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>copy-config</id>
                         <phase>prepare-package</phase>
                         <goals>

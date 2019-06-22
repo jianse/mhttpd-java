@@ -11,7 +11,7 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <!-- 控制台只输出level及以上级别的信息(onMatch),其他的直接拒绝(onMismatch) -->
-            <ThresholdFilter level="all" onMatch="ACCEPT"
+            <ThresholdFilter level="info" onMatch="ACCEPT"
                              onMismatch="DENY" />
             <!-- 输出日志的格式 -->
             <!--

@@ -12,6 +12,7 @@ import cn.ntboy.mhttpd.util.res.StringManager;
 import org.apache.commons.digester3.Digester;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.appender.FileAppender;
 import org.xml.sax.InputSource;
 
 import java.io.File;
